@@ -255,7 +255,7 @@ implementation{
 		}
 		
 		//Repassa líder eleito
-		call announceVictoryTimer.startOneShot(nodeDelay);
+		//call announceVictoryTimer.startOneShot(nodeDelay);
 		
 		return msg;
 	}
