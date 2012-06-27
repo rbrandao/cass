@@ -20,7 +20,7 @@ implementation{
 		signal LifeCycle.initDone(error);
 	}
 	
-	command void LifeCycle.addOption(uint8_t * option, uint16_t value){
+	command void LifeCycle.setProperty(uint8_t * option, uint16_t value){
 		if(strcmp((char*)option, "groupID") == 0){
 			dbg("lifeCycle", "GroupRadio: Set GroupID:%u.\n",value);
 			groupID = value;

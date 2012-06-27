@@ -19,9 +19,12 @@ configuration LeaderElectionC{
 
 implementation{
 	components LeaderElectionP;
+	components HopRadioC;
+	
 	components MainC;
+	components ActiveMessageC;
+	
 	components dummyBSC;
-	components GroupRadioC;
 	
 	components new TimerMilliC() as startElectionTimer;
 	components new TimerMilliC() as sendResponseTimer;
@@ -29,7 +32,14 @@ implementation{
 	components new TimerMilliC() as waitResponsesTimer;
 	components new TimerMilliC() as waitVictoryTimer;
 
+	LeaderElectionP.GroupSend		-> HopRadioC.AMSend;
+	LeaderElectionP.GroupReceive	-> HopRadioC.Receive;
+	LeaderElectionP.RadioLifeCycle 	-> HopRadioC.LifeCycle;
+	
+	LeaderElection					= LeaderElectionP.LeaderElection;
+
 	LeaderElectionP.Boot			-> MainC;
+	LeaderElectionP.Radio			-> ActiveMessageC;
 	
 	LeaderElectionP.startElectionTimer		-> startElectionTimer;
 	LeaderElectionP.sendResponseTimer		-> sendResponseTimer;
@@ -37,10 +47,5 @@ implementation{
 	LeaderElectionP.waitVictoryTimer		-> waitVictoryTimer;
 	LeaderElectionP.announceVictoryTimer	-> announceVictoryTimer;
 	
-	LeaderElectionP.GroupSend		-> GroupRadioC.AMSend;
-	LeaderElectionP.GroupReceive	-> GroupRadioC.Receive;
-	
-	LeaderElection					= LeaderElectionP.LeaderElection;
-
 }
 

@@ -5,6 +5,5 @@ interface LifeCycle{
 	command void stop();
 	event void stopDone(error_t error);
 
-
-	command void addOption(uint8_t * option, uint16_t value);	
+	command void setProperty(uint8_t * option, uint16_t value);	
 }

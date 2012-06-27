@@ -24,14 +24,14 @@ implementation{
 		signal LifeCycle.initDone(error);
 	}
 	
-	command void LifeCycle.addOption(uint8_t * option, uint16_t value){
+	command void LifeCycle.setProperty(uint8_t * option, uint16_t value){
 		if(strcmp(option,"hops") == 0){
 			dbg("lifeCycle", "HopLimits: Set Hops:%u.\n", value);
 			hopsNum = value;
 		}
 		
 		//Deep configuration.
-		call RadioLifeCycle.addOption(option, value);
+		call RadioLifeCycle.setProperty(option, value);
 	}
 	
 	command void * AMSend.getPayload(message_t *msg, uint8_t len){
@@ -48,7 +48,7 @@ implementation{
 		payload = (cassMsg_t*) call AMSend.getPayload(msg, len);
 		
 		if(payload->hops != 0)
-			dbg("hops", "Lixo no valor de HOPS. Estou sobreescrevendo.\n");
+			dbg("hopRadio", "Lixo no valor de HOPS. Estou sobreescrevendo.\n");
 			
 		payload->hops = hopsNum;
 		return call  RadioSend.send(addr, msg, len);
@@ -72,14 +72,14 @@ implementation{
 			return msg;
 		}
 		
-		dbg("hops", "Hops: RecebiMsg. Hops=%u.\n", message.hops);
+		dbg("hopRadio", "Hops: RecebiMsg. Hops=%u.\n", message.hops);
 		signal Receive.receive(msg, payload, len);
 		
 		if(message.hops > 0){
 			message.hops--;
 			memcpy(call RadioSend.getPayload(&sendBuff,call RadioSend.maxPayloadLength()), &message, sizeof(cassMsg_t));
 			
-			dbg("hops", "Hops: Enviando a mensagem. Hops=%u.\n", message.hops);
+			dbg("hopRadio", "Hops: Enviando a mensagem. Hops=%u.\n", message.hops);
 			call RadioSend.send(message.clientID, &sendBuff, len);
 		}
 		

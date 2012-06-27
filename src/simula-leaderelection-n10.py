@@ -30,7 +30,10 @@ if (sfFlag and liveFlag):
 
 # Colocar aqui os canais da sua aplicacao
 #t.addChannel("Metrics", sys.stdout)
-t.addChannel("finalProject", sys.stdout)
+t.addChannel("leaderElection", sys.stdout)
+t.addChannel("groupRadio", sys.stdout)
+t.addChannel("hopRadio", sys.stdout)
+t.addChannel("lifeCycle", sys.stdout)
 
 # Global vars - nao os valores aqui!
 Motes=10
