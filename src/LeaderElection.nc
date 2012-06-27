@@ -26,7 +26,7 @@
  
 #include "cass.h"
 
-interface leaderElection {
+interface LeaderElection {
 	
 	//Comando para recuperação do líder atual (caso não exista retorna zero)
 	command nx_uint16_t retrieveLeader();

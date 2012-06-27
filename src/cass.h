@@ -2,6 +2,7 @@
 #define CASS_H
 
 enum {
+	CASS_ID = 100,
 	HOPS_MAX_NUMBER = 3,
 	TIMER_PERIOD = 2000,
 	DELAY_TIME = 1050,
@@ -12,9 +13,9 @@ enum {
 	//Node que iniciará a primeira eleição
 	ELECTION_STARTER = 10,
 	
-	ELECTION_AM_ID = 200,
-	RESPONSE_AM_ID = 201,
-	VICTORY_AM_ID = 202
+	ELECTION_MSG_ID = 200,
+	RESPONSE_MSG_ID = 201,
+	VICTORY_MSG_ID = 202
 };
 
 // broadcast
