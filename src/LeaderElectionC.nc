@@ -14,7 +14,7 @@
 
 configuration LeaderElectionC{
 	provides interface LeaderElection;
-	//provides interface LifeCycle;
+	provides interface LifeCycle;
 }
 
 implementation{
@@ -37,6 +37,7 @@ implementation{
 	LeaderElectionP.RadioLifeCycle 	-> HopRadioC.LifeCycle;
 	
 	LeaderElection					= LeaderElectionP.LeaderElection;
+	LifeCycle						= LeaderElectionP.LifeCycle;
 
 	LeaderElectionP.Boot			-> MainC;
 	LeaderElectionP.Radio			-> ActiveMessageC;

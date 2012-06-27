@@ -15,7 +15,7 @@
 module LeaderElectionP{
 	
 	provides interface LeaderElection;
-	//provides interface LifeCycle;
+	provides interface LifeCycle;
 
 	uses interface Timer<TMilli> as startElectionTimer;
 	uses interface Timer<TMilli> as sendResponseTimer;
@@ -306,6 +306,21 @@ implementation{
 	}
 
 	event void RadioLifeCycle.initDone(error_t error){
+		// TODO Auto-generated method stub
+	}
+
+	/*
+	 * LeaderElection LifeCycle
+	 */
+	command void LifeCycle.init(){
+		// TODO Auto-generated method stub
+	}
+
+	command void LifeCycle.setProperty(uint8_t *option, uint16_t value){
+		// TODO Auto-generated method stub
+	}
+
+	command void LifeCycle.stop(){
 		// TODO Auto-generated method stub
 	}
 }
