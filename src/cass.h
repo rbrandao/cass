@@ -2,7 +2,8 @@
 #define CASS_H
 
 enum {
-	CASS_ID = 100, 
+	CASS_ID = 100,
+	P2P_ID = 101,
 	HOPS_MAX_NUMBER = 3,
 
 	TIMER_PERIOD = 2000,
@@ -28,7 +29,7 @@ typedef nx_struct cass {
 	nx_uint16_t groupID; // grupo que receberá a mensagem.
 	nx_uint16_t hops; // número de saltos da mensagem.
 	nx_uint16_t value; // valor da mensagem.
-	nx_uint16_t electionMsgID; //tipo da mensagem de eleição
+	nx_uint16_t messageType; //tipo da mensagem.
 } cassMsg_t;
 
 

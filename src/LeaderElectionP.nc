@@ -118,7 +118,7 @@ implementation{
 		
 		data.serverID = TOS_NODE_ID;
 		data.clientID = AM_BROADCAST_ADDR;
-		data.electionMsgID = ELECTION_MSG_ID;
+		data.messageType = ELECTION_MSG_ID;
 		data.groupID = groupID;
 		
 		memcpy(call GroupSend.getPayload(&sendBuff, call GroupSend.maxPayloadLength()), &data, sizeof(cassMsg_t));
@@ -162,7 +162,7 @@ implementation{
 		 memcpy(&data, call GroupSend.getPayload(msg, call GroupSend.maxPayloadLength()), sizeof(cassMsg_t));
 	
 		 if(error == SUCCESS){
-			 switch(data.electionMsgID){
+			 switch(data.messageType){
 				 case ELECTION_MSG_ID:
 					 if(data.serverID == TOS_NODE_ID){
 						 dbg("leaderElection","LeaderElectionP GroupSend.sendDone(): Eleição iniciada (timeout=%d)\n",ELECTION_TIMEOUT);
@@ -188,7 +188,7 @@ implementation{
 		dbg("leaderElection","LeaderElectionP GroupReceive.receive()\n");
 		memcpy(&data,payload,sizeof(cassMsg_t));
 	
-		switch(data.electionMsgID){
+		switch(data.messageType){
 			case ELECTION_MSG_ID:
 				dbg("leaderElection","LeaderElectionP GroupReceive.receive(): Nova eleição recebida de ID=%d\n",data.serverID);
 				
@@ -263,7 +263,7 @@ implementation{
 		data.serverID = leaderID;
 		data.clientID = AM_BROADCAST_ADDR;
 		data.groupID = groupID;
-		data.electionMsgID = VICTORY_MSG_ID;
+		data.messageType = VICTORY_MSG_ID;
 		
 		call LeaderElection.announceVictory(&data);
 	}
@@ -289,7 +289,7 @@ implementation{
 		data.serverID = TOS_NODE_ID;
 		data.clientID = lastReceivedID;
 		data.groupID = groupID;
-		data.electionMsgID = RESPONSE_MSG_ID;
+		data.messageType = RESPONSE_MSG_ID;
 		
 		call LeaderElection.sendResponse(&data);
 	}
