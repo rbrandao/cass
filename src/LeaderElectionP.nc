@@ -35,6 +35,7 @@ implementation{
 	bool radioBusy;
 	bool isElectionRunning;
 	message_t sendBuff;
+	nx_uint16_t	hopsNum;
 	nx_uint16_t leaderID;
 	nx_uint16_t groupID;
 	nx_uint16_t lastReceivedID;
@@ -43,24 +44,21 @@ implementation{
 
 	/*
 	 * Interface Boot
+	 * 
+	 * TODO: Verificar onde vai ser o boot posteriormente
 	 */
 	
 	event void Boot.booted(){
 		dbg("leaderElection","LeaderElectionP Boot.booted()\n");
 		
-		//Inicializa variáveis
-		radioBusy = TRUE;
-		isElectionRunning = FALSE;
-		leaderID = 0;
-		lastReceivedID = 0;
-		nodeDelay = (TOS_NODE_ID * 15)+50;
-		groupID = 1;
+		//Inicia componente de eleição
+		call LifeCycle.init();
 		
 		//Cria um único grupo (para testes)
-		call RadioLifeCycle.setProperty("groupID", groupID);
+		call LifeCycle.setProperty("groupID", groupID);
 		
 		//Define número de hops (para testes)
-		call RadioLifeCycle.setProperty("hops", HOPS_MAX_NUMBER);
+		call LifeCycle.setProperty("hops", HOPS_MAX_NUMBER);
 		
 		//Inicia rádio
 		call Radio.start();
@@ -298,7 +296,7 @@ implementation{
 
 	
 	/*
-	 * Radio LifeCycle
+	 * Eventos do Radio LifeCycle
 	 */
 	 
 	event void RadioLifeCycle.stopDone(error_t error){
@@ -309,19 +307,58 @@ implementation{
 		// TODO Auto-generated method stub
 	}
 
+
 	/*
 	 * LeaderElection LifeCycle
 	 */
+	 
 	command void LifeCycle.init(){
-		// TODO Auto-generated method stub
+		//Inicializa variáveis
+		radioBusy = TRUE;
+		isElectionRunning = FALSE;
+		leaderID = 0;
+		lastReceivedID = 0;
+		nodeDelay = (TOS_NODE_ID * 15)+50;
+		groupID = 1;
+		hopsNum = HOPS_MAX_NUMBER;
+		
 	}
 
 	command void LifeCycle.setProperty(uint8_t *option, uint16_t value){
-		// TODO Auto-generated method stub
+		if(strcmp(option,"hops") == 0){
+			dbg("lifeCycle", "LeaderElection: Set Hops:%u.\n", value);
+			hopsNum = value;
+		}
+		
+		if(strcmp((char*)option, "groupID") == 0){
+			dbg("lifeCycle", "LeaderElection: Set GroupID:%u.\n",value);
+			groupID = value;
+		}
+		
+		//Deep configuration.
+		call RadioLifeCycle.setProperty(option, value);
 	}
 
 	command void LifeCycle.stop(){
-		// TODO Auto-generated method stub
+		
+		//Finaliza eventual eleição em andamento
+		isElectionRunning = FALSE;
+		
+		if(call announceVictoryTimer.isRunning()){
+			call announceVictoryTimer.stop();
+		}
+		if(call startElectionTimer.isRunning()){
+			call startElectionTimer.stop();
+		}
+		if(call sendResponseTimer.isRunning()){
+			call sendResponseTimer.stop();
+		}
+		if(call waitResponsesTimer.isRunning()){
+			call waitResponsesTimer.stop();
+		}
+		if(call waitVictoryTimer.isRunning()){
+			call waitVictoryTimer.stop();
+		}
 	}
 }
 
