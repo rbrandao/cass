@@ -13,19 +13,32 @@ module HopRadioP{
 	uses interface Packet as RadioPacket;
 }
 implementation{
+	uint8_t msgID; //TODO: Lembrar de falar no tutorial que o Hops é o respons[avel pelo  MessageID.
+	uint16_t messageBufferID[MAX_MESSAGE_ID_BUFFER_LEN];
+	uint8_t bufferID;
+	
 	uint16_t hopsNum = 0;
 	message_t sendBuff; //Utilizado para mandar a mensagem para cima.
 	
+	bool isDuplicateMsg(nx_uint16_t messageID);
+	
 	command void LifeCycle.init(){
-		error_t error;
+		error_t error = SUCCESS;
+		int i;
 		dbg("lifeCycle", "HopLimits: Initiated.\n");
+		
+		bufferID = 0;
+		msgID = 1;
+		for (i = 0; i < MAX_MESSAGE_ID_BUFFER_LEN;  i++){
+			messageBufferID[i] = 0;
+		}
 		
 		call RadioLifeCycle.init();
 		signal LifeCycle.initDone(error);
 	}
 	
 	command void LifeCycle.setProperty(uint8_t * option, uint16_t value){
-		if(strcmp(option,"hops") == 0){
+		if(strcmp((char*)option,"hops") == 0){
 			dbg("lifeCycle", "HopLimits: Set Hops:%u.\n", value);
 			hopsNum = value;
 		}
@@ -47,9 +60,13 @@ implementation{
 		
 		payload = (cassMsg_t*) call AMSend.getPayload(msg, len);
 		
+		if(payload->messageID != 0)
+			dbg("hopRadio", "Lixo no valor de MessageID. Estou sobreescrevendo.\n");
+		
 		if(payload->hops != 0)
 			dbg("hopRadio", "Lixo no valor de HOPS. Estou sobreescrevendo.\n");
 			
+		payload->messageID = (TOS_NODE_ID << 8) + msgID++;
 		payload->hops = hopsNum;
 		return call  RadioSend.send(addr, msg, len);
 	}
@@ -68,9 +85,16 @@ implementation{
 		memcpy(&message, payload, sizeof(cassMsg_t));
 		
 		//Não reenvia a própria mensagem.
-		if(message.serverID == TOS_NODE_ID){
+        if(message.serverID == TOS_NODE_ID){
+            return msg;
+        }
+		
+		
+		if(isDuplicateMsg(message.messageID)){
 			return msg;
 		}
+		messageBufferID[bufferID++ % MAX_MESSAGE_ID_BUFFER_LEN] = message.messageID;
+		
 		
 		dbg("hopRadio", "Hops: RecebiMsg. Hops=%u.\n", message.hops);
 		signal Receive.receive(msg, payload, len);
@@ -94,4 +118,23 @@ implementation{
 	event void RadioLifeCycle.initDone(error_t error){	}
 
 	event void RadioLifeCycle.stopDone(error_t error){	}
+	
+	
+	//Responsavel por verificar se a mensagem já foi recebida anteriormente.	
+	bool isDuplicateMsg(nx_uint16_t messageID){
+		int i;
+		
+		for (i = 0; i < MAX_MESSAGE_ID_BUFFER_LEN;  i++){
+			if(messageBufferID[i] == messageID){
+				return TRUE;
+			}
+		}
+		return FALSE;
+	}
+		
+		
+		
+		
+		
+		
 }
