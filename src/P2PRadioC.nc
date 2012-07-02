@@ -10,10 +10,16 @@ implementation{
 	components new AMSenderC(P2P_ID) as RadioSend;
     components new AMReceiverC(P2P_ID) as RadioReceive;
     components CollectionC as Collector;
-    components new CollectionSenderC(0xee);
+    components new CollectionSenderC(P2P_ID);
+    
+	P2PRadioP.P2PRadio = P2PRadio;
+	P2PRadioP.LifeCycle = LifeCycle;
 
-	P2PRadioP.RadioSend = RadioSend;
-	P2PRadioP.RadioReceive = RadioReceive;
-	//P2PRadioP.Router = Coll	
-	    
+	P2PRadioP.RadioSend -> RadioSend;
+	P2PRadioP.RadioReceive -> RadioReceive;
+	P2PRadioP.SendCTP -> CollectionSenderC;
+	P2PRadioP.RootControl -> Collector;
+	P2PRadioP.ReceiveCTP -> Collector.Receive[P2P_ID];
+	P2PRadioP.InterceptCTP -> Collector.Intercept[P2P_ID];
+	
 }

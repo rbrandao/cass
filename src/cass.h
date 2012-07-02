@@ -9,6 +9,9 @@ enum {
 	TIMER_PERIOD = 2000,
 	DELAY_TIME = 1050,
 	MAX_MESSAGE_ID_BUFFER_LEN = 5,
+	MAX_LEADER_BUFFER_LEN = 10,
+
+	PHOTO_MSG_ID = 501,
 
 	//Tempo máximo de espera pela eleição
 	ELECTION_TIMEOUT = 5000,
@@ -18,7 +21,9 @@ enum {
 	
 	ELECTION_MSG_ID = 200,
 	RESPONSE_MSG_ID = 201,
-	VICTORY_MSG_ID = 202
+	VICTORY_MSG_ID = 202,
+	
+	P2P_MSG_ID = 301,
 };
 
 // broadcast
@@ -32,6 +37,10 @@ typedef nx_struct cass {
 	nx_uint16_t messageType; //tipo da mensagem.
 } cassMsg_t;
 
+typedef nx_struct p2pCache {
+	nx_uint16_t originalNodeID; // ID do nó que enviou a mensagem.
+	nx_uint16_t parentID; //ID de onde a mensagem chegou.
+} p2pCache_t;
 
 
 #endif /* CASS_H */
