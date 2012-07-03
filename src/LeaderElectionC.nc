@@ -6,7 +6,7 @@
  * @author Rafael Brandão
  * @date  Junho, 2012
  *
- * Implementação do componente que encapsula a eleição de líderes (algoritmo bully)
+ * Wiring do componente que encapsula a eleição de líderes (algoritmo bully)
  * para o projeto final proposto
  */
  

@@ -56,8 +56,8 @@ uint16_t groupID;
 		}
 		
 		sendBusy = TRUE;
-		message.serverID = TOS_NODE_ID;
-		message.clientID = AM_BROADCAST_ADDR;
+		message.srcID = TOS_NODE_ID;
+		message.destID = AM_BROADCAST_ADDR;
 		message.groupID = groupID;
 		message.hops = 0;
 		message.messageID = 0;
@@ -85,7 +85,7 @@ uint16_t groupID;
 
 		
 		memcpy(&message, payload, sizeof(cassMsg_t));
-		dbg("Test"," RadioReceive.receive(): MyGID:%u MessageGID:%u MessageID:%u ServerID:%u \n",groupID, message.groupID, message.messageID,message.serverID);
+		dbg("Test"," RadioReceive.receive(): MyGID:%u MessageGID:%u MessageID:%u ServerID:%u \n",groupID, message.groupID, message.messageID,message.srcID);
 		
 		return msg;
 	}

@@ -116,14 +116,14 @@ implementation{
 		}
 		radioBusy = TRUE;
 		
-		data.serverID = TOS_NODE_ID;
-		data.clientID = AM_BROADCAST_ADDR;
+		data.srcID = TOS_NODE_ID;
+		data.destID = AM_BROADCAST_ADDR;
 		data.messageType = ELECTION_MSG_ID;
 		data.groupID = groupID;
 		
 		memcpy(call GroupSend.getPayload(&sendBuff, call GroupSend.maxPayloadLength()), &data, sizeof(cassMsg_t));
 
-		return call GroupSend.send(data.clientID, &sendBuff, sizeof(cassMsg_t));
+		return call GroupSend.send(data.destID, &sendBuff, sizeof(cassMsg_t));
 	}
 
 	command error_t LeaderElection.announceVictory(cassMsg_t *data){
@@ -135,7 +135,7 @@ implementation{
 		
 		memcpy(call GroupSend.getPayload(&sendBuff, call GroupSend.maxPayloadLength()), data, sizeof(cassMsg_t));
 
-		return call GroupSend.send(data->clientID, &sendBuff, sizeof(cassMsg_t));
+		return call GroupSend.send(data->destID, &sendBuff, sizeof(cassMsg_t));
 	}
 
 	command error_t LeaderElection.sendResponse(cassMsg_t *data){
@@ -147,7 +147,7 @@ implementation{
 		
 		memcpy(call GroupSend.getPayload(&sendBuff, call GroupSend.maxPayloadLength()), data, sizeof(cassMsg_t));
 
-		return call GroupSend.send(data->clientID, &sendBuff, sizeof(cassMsg_t));
+		return call GroupSend.send(data->destID, &sendBuff, sizeof(cassMsg_t));
 	}
 
 
@@ -164,7 +164,7 @@ implementation{
 		 if(error == SUCCESS){
 			 switch(data.messageType){
 				 case ELECTION_MSG_ID:
-					 if(data.serverID == TOS_NODE_ID){
+					 if(data.srcID == TOS_NODE_ID){
 						 dbg("leaderElection","LeaderElectionP GroupSend.sendDone(): Eleição iniciada (timeout=%d)\n",ELECTION_TIMEOUT);
 		
 						 isElectionRunning = TRUE;
@@ -190,12 +190,12 @@ implementation{
 	
 		switch(data.messageType){
 			case ELECTION_MSG_ID:
-				dbg("leaderElection","LeaderElectionP GroupReceive.receive(): Nova eleição recebida de ID=%d\n",data.serverID);
+				dbg("leaderElection","LeaderElectionP GroupReceive.receive(): Nova eleição recebida de ID=%d\n",data.srcID);
 				
-				lastReceivedID = data.serverID;
+				lastReceivedID = data.srcID;
 	
 				//Caso o iniciante desta eleição tenha ID menor, inicia-se outra imediatamente (bully)
-				if(data.serverID < TOS_NODE_ID){
+				if(data.srcID < TOS_NODE_ID){
 					//Responde com ID
 					call sendResponseTimer.startOneShot(nodeDelay);
 		
@@ -206,19 +206,19 @@ implementation{
 				break;
 			
 			case RESPONSE_MSG_ID:
-				dbg("leaderElection","LeaderElectionP GroupReceive.receive(): Resposta recebida de ID=%d\n",data.serverID);
+				dbg("leaderElection","LeaderElectionP GroupReceive.receive(): Resposta recebida de ID=%d\n",data.srcID);
 				
 				//Caso receba um ID maior espera pelo anuncio da vitoria
-				if(data.serverID > TOS_NODE_ID){
+				if(data.srcID > TOS_NODE_ID){
 	
-					dbg("leaderElection","LeaderElectionP GroupReceive.receive(): ID maior recebido, aguardando sua notificação (NodeID=%d)\n", data.serverID);
+					dbg("leaderElection","LeaderElectionP GroupReceive.receive(): ID maior recebido, aguardando sua notificação (NodeID=%d)\n", data.srcID);
 		
 					if(call waitVictoryTimer.isRunning()){
 						call waitVictoryTimer.stop();
 					}
 		
 					//Guarda maior ID recebido
-					lastReceivedID = data.serverID;
+					lastReceivedID = data.srcID;
 		
 					call waitVictoryTimer.startOneShot(ELECTION_TIMEOUT*2);
 				}
@@ -226,10 +226,10 @@ implementation{
 				break;
 	
 			case VICTORY_MSG_ID:
-				dbg("leaderElection","LeaderElectionP GroupReceive.receive(): Vitória recebida de ID=%d\n",data.serverID);
+				dbg("leaderElection","LeaderElectionP GroupReceive.receive(): Vitória recebida de ID=%d\n",data.srcID);
 				
 				//Guarda ID líder eleito
-				leaderID = data.serverID;
+				leaderID = data.srcID;
 		
 				//Fim da eleição
 				isElectionRunning = FALSE;
@@ -260,8 +260,8 @@ implementation{
 	
 	event void announceVictoryTimer.fired(){
 		cassMsg_t data;
-		data.serverID = leaderID;
-		data.clientID = AM_BROADCAST_ADDR;
+		data.srcID = leaderID;
+		data.destID = AM_BROADCAST_ADDR;
 		data.groupID = groupID;
 		data.messageType = VICTORY_MSG_ID;
 		
@@ -286,8 +286,8 @@ implementation{
 
 	event void sendResponseTimer.fired(){
 		cassMsg_t data;
-		data.serverID = TOS_NODE_ID;
-		data.clientID = lastReceivedID;
+		data.srcID = TOS_NODE_ID;
+		data.destID = lastReceivedID;
 		data.groupID = groupID;
 		data.messageType = RESPONSE_MSG_ID;
 		

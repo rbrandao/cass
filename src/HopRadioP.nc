@@ -85,7 +85,7 @@ implementation{
 		memcpy(&message, payload, sizeof(cassMsg_t));
 		
 		//Não reenvia a própria mensagem.
-        if(message.serverID == TOS_NODE_ID){
+        if(message.srcID == TOS_NODE_ID){
             return msg;
         }
 		
@@ -104,7 +104,7 @@ implementation{
 			memcpy(call RadioSend.getPayload(&sendBuff,call RadioSend.maxPayloadLength()), &message, sizeof(cassMsg_t));
 			
 			dbg("hopRadio", "Hops: Enviando a mensagem. Hops=%u.\n", message.hops);
-			call RadioSend.send(message.clientID, &sendBuff, len);
+			call RadioSend.send(message.destID, &sendBuff, len);
 		}
 		
 		return msg;

@@ -54,8 +54,8 @@ uint8_t msgID;
 		}
 		
 		sendBusy = TRUE;
-		message.serverID = TOS_NODE_ID;
-		message.clientID = AM_BROADCAST_ADDR;
+		message.srcID = TOS_NODE_ID;
+		message.destID = AM_BROADCAST_ADDR;
 		message.groupID = groupID;
 		message.messageID = msgID++;
 		message.value = TOS_NODE_ID + msgID;

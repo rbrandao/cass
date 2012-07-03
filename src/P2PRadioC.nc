@@ -24,4 +24,5 @@ implementation{
 	P2PRadioP.InterceptCTP -> Collector.Intercept[P2P_ID];
 	P2PRadioP.RoutingControl -> Collector;
 	P2PRadioP.PacketCTP -> Collector.Packet;
+	P2PRadioP.AMPacket -> RadioSend;
 }

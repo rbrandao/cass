@@ -12,6 +12,21 @@ enum {
 	MAX_LEADER_BUFFER_LEN = 10,
 
 	PHOTO_MSG_ID = 501,
+	TEMP_MSG_ID = 502,
+	SENSOR = TEMP_MSG_ID,
+	
+	//Identificador da mensagem P2P
+	P2P_MSG_ID = 301,
+	
+
+	/*
+	 * Eleição de líder
+	 */
+	 
+	//Identificadores das mensagens de eleição de líder
+	ELECTION_MSG_ID = 200,
+	RESPONSE_MSG_ID = 201,
+	VICTORY_MSG_ID = 202,
 
 	//Tempo máximo de espera pela eleição
 	ELECTION_TIMEOUT = 5000,
@@ -19,22 +34,39 @@ enum {
 	//Node que iniciará a primeira eleição
 	ELECTION_STARTER = 10,
 	
-	ELECTION_MSG_ID = 200,
-	RESPONSE_MSG_ID = 201,
-	VICTORY_MSG_ID = 202,
 	
-	P2P_MSG_ID = 301,
+	/*
+	 * Disseminação de mensagens
+	 */
+
+	//Identificadores das mensagens de disseminação
+	PROBE_MSG_ID = 130,
+	ECHO_MSG_ID =  131,
+	DISCOVER_MSG_ID = 132,
+	 
+	//Máximo de vizinhos
+	MAX_NEIGHBOURS = 20,
+	
+	//Timeout para finalização de um probe 
+	PROBE_TIMEOUT = 5000,
 };
 
 // broadcast
 typedef nx_struct cass {
-	nx_uint16_t serverID; // ID do Servidor.
-	nx_uint16_t clientID; // ID do Cliente.
-	nx_uint16_t messageID; // id da mensagem.
+	nx_uint16_t srcID; // ID do nó de origem.
+	nx_uint16_t destID; // ID do nó de destino.
+	nx_uint16_t messageID; // Contador da mensagem.
 	nx_uint16_t groupID; // grupo que receberá a mensagem.
 	nx_uint16_t hops; // número de saltos da mensagem.
 	nx_uint16_t value; // valor da mensagem.
 	nx_uint16_t messageType; //tipo da mensagem.
+	
+	//disseminacao de mensagens
+	
+	nx_uint16_t motes; // número de nós vizinhos (messagem de disseminação)
+	nx_uint16_t sensorType; // sensor a ser lido (messagem de disseminação)
+	nx_uint32_t readValue; // valor lido no sensor (messagem de disseminação)
+	nx_uint16_t destArray[MAX_NEIGHBOURS];	// array de destino
 } cassMsg_t;
 
 typedef nx_struct p2pCache {
