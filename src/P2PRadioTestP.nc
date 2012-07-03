@@ -60,8 +60,8 @@ uint8_t msgID;
 		}
 		
 		sendBusy = TRUE;
-		message.serverID = TOS_NODE_ID;
-		message.clientID = 100;
+		message.srcID = TOS_NODE_ID;
+		message.destID = 100;
 		message.groupID = 0;
 		message.hops = 0;
 		message.messageID = msgID++;
@@ -84,14 +84,14 @@ uint8_t msgID;
 		message = (cassMsg_t*) call Packet.getPayload(msg, len);
 		
 		if(call P2PRadio.isRoot()){
-			dbg("Test","Root: recebi a mensagem. Reenviando um mensagem para o nó %u.\n", message->serverID);
-			reply.clientID = message->serverID;
+			dbg("Test","Root: recebi a mensagem. Reenviando um mensagem para o nó %u.\n", message->srcID);
+			reply.destID = message->srcID;
 			reply.groupID = 0;
 			reply.hops = 0;
 			reply.messageID = msgID++;
 			reply.messageType = PHOTO_MSG_ID;
-			reply.serverID = TOS_NODE_ID;
-			reply.value = 100 + message->serverID;
+			reply.srcID = TOS_NODE_ID;
+			reply.value = 100 + message->srcID;
 			
 			memcpy(call Packet.getPayload(&sendBuff,call Packet.maxPayloadLength()), &message, sizeof(cassMsg_t));
 			returnValue = call P2PRadio.send(AM_BROADCAST_ADDR, &sendBuff, sizeof(cassMsg_t));

@@ -56,19 +56,24 @@ implementation{
 	}
 
 	command error_t AMSend.send(am_addr_t addr, message_t *msg, uint8_t len){
-		cassMsg_t *payload;
+		cassMsg_t payload;
 		
-		payload = (cassMsg_t*) call AMSend.getPayload(msg, len);
+		//payload = (cassMsg_t*) call AMSend.getPayload(msg, len);
+		memcpy(&payload,call AMSend.getPayload(msg,call AMSend.maxPayloadLength()),sizeof(cassMsg_t));
 		
-		if(payload->messageID != 0)
-			dbg("hopRadio", "Lixo no valor de MessageID. Estou sobreescrevendo.\n");
+		if(payload.messageID != 0)
+			dbg("hopRadio", "Lixo no valor de MessageID [%d]. Estou sobreescrevendo.\n",payload.messageID);
 		
-		if(payload->hops != 0)
-			dbg("hopRadio", "Lixo no valor de HOPS. Estou sobreescrevendo.\n");
+		if(payload.hops != 0)
+			dbg("hopRadio", "Lixo no valor de HOPS [%d]. Estou sobreescrevendo.\n", payload.hops);
 			
-		payload->messageID = (TOS_NODE_ID << 8) + msgID++;
-		payload->hops = hopsNum;
-		return call  RadioSend.send(addr, msg, len);
+		payload.messageID = (TOS_NODE_ID << 8) + msgID++;
+		payload.hops = hopsNum;
+
+		// Copia payload para o buffer da mensagem
+		memcpy(call AMSend.getPayload(&sendBuff,call AMSend.maxPayloadLength()), &payload, sizeof(cassMsg_t));
+
+		return call  RadioSend.send(addr, &sendBuff, len);
 	}
 
 	command error_t AMSend.cancel(message_t *msg){

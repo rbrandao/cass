@@ -32,7 +32,7 @@ enum {
 	ELECTION_TIMEOUT = 5000,
 	
 	//Node que iniciará a primeira eleição
-	ELECTION_STARTER = 10,
+	ELECTION_STARTER = 1,
 	
 	
 	/*
