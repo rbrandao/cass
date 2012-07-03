@@ -61,7 +61,7 @@ uint8_t msgID;
 		
 		sendBusy = TRUE;
 		message.serverID = TOS_NODE_ID;
-		message.clientID = 0;
+		message.clientID = 100;
 		message.groupID = 0;
 		message.hops = 0;
 		message.messageID = msgID++;
@@ -70,7 +70,7 @@ uint8_t msgID;
 		
 		returnValue = call P2PRadio.send(AM_BROADCAST_ADDR, &sendBuff, sizeof(cassMsg_t));
 		if (returnValue != SUCCESS){
-    		dbg("Test","Timer.fired(): erro ao enviar mensagem para o id %u!\n",msgID);    	
+    		dbg("Test","Timer.fired(): Erro '%u'  ao enviar mensagem para o id %u!\n",returnValue, msgID);    	
 		}		
 	}	
 	
@@ -80,8 +80,8 @@ uint8_t msgID;
 		cassMsg_t* message;
 		cassMsg_t reply;
 		dbg("Test","P2PRadio.receive()\n");
-		
-		message = (cassMsg_t*)payload;
+
+		message = (cassMsg_t*) call Packet.getPayload(msg, len);
 		
 		if(call P2PRadio.isRoot()){
 			dbg("Test","Root: recebi a mensagem. Reenviando um mensagem para o nó %u.\n", message->serverID);
@@ -94,9 +94,9 @@ uint8_t msgID;
 			reply.value = 100 + message->serverID;
 			
 			memcpy(call Packet.getPayload(&sendBuff,call Packet.maxPayloadLength()), &message, sizeof(cassMsg_t));
-			returnValue = call P2PRadio.send(-1, &sendBuff, sizeof(cassMsg_t));
+			returnValue = call P2PRadio.send(AM_BROADCAST_ADDR, &sendBuff, sizeof(cassMsg_t));
 			if (returnValue != SUCCESS){
-	    		dbg("Test","Timer.fired(): erro ao enviar mensagem para o id %u!\n",msgID);    	
+	    		dbg("Test"," P2PRadio.receive(): Erro '%u'  ao enviar mensagem para o id %u!\n",returnValue, msgID);    	
 			}			
 		}
 		else{

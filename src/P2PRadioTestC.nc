@@ -14,5 +14,5 @@ implementation{
     P2PRadioTestP.Radio -> ActiveMessageC;
     P2PRadioTestP.Timer -> Timer;
     P2PRadioTestP.Packet -> AMSenderC.Packet;
-    P2PRadioTestP.Dummy -> AMSenderC.AMSend;
+    P2PRadioTestP.Dummy -> AMSenderC.AMSend; //Necessário para a interface Packet funcionar.
 }

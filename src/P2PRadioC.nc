@@ -12,6 +12,7 @@ implementation{
     components CollectionC as Collector;
     components new CollectionSenderC(P2P_ID);
     
+    
 	P2PRadioP.P2PRadio = P2PRadio;
 	P2PRadioP.LifeCycle = LifeCycle;
 
@@ -21,5 +22,6 @@ implementation{
 	P2PRadioP.RootControl -> Collector;
 	P2PRadioP.ReceiveCTP -> Collector.Receive[P2P_ID];
 	P2PRadioP.InterceptCTP -> Collector.Intercept[P2P_ID];
+	P2PRadioP.RoutingControl -> Collector;
 	
 }

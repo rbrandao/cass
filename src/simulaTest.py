@@ -17,9 +17,10 @@ for line in lines:
     r.add(int(s[0]), int(s[1]), float(s[2]))
 
 t.addChannel("Test", sys.stdout)
-t.addChannel("group", sys.stdout)
+t.addChannel("groupRadio", sys.stdout)
 t.addChannel("lifeCycle", sys.stdout)
-t.addChannel("hops", sys.stdout)
+t.addChannel("hopRadio", sys.stdout)
+t.addChannel("p2pRadio", sys.stdout)
 
 noise = open("meyer-heavy.txt", "r") #introduz ruido na comunicacao
 lines = noise.readlines()
