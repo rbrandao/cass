@@ -12,6 +12,7 @@ module P2PRadioP{
 	uses interface Receive as ReceiveCTP;
 	uses interface Intercept as InterceptCTP;
     uses interface StdControl as RoutingControl;
+    uses interface Packet as PacketCTP; 
 	
 	uses interface RootControl;	
 }
@@ -82,13 +83,13 @@ implementation{
 	event bool InterceptCTP.forward(message_t *msg, void *payload, uint8_t len){
 		cassMsg_t* message;
 		
-		message = (cassMsg_t*) call SendCTP.getPayload(msg, len);
+		message = (cassMsg_t*) call PacketCTP.getPayload(msg, len);
 		
 		dbg("p2pRadio","Intercept: OriginalNode:%u | ParentID:%u | groupID:%u | messageID:%u.\n",message->serverID, message->clientID, message->groupID, message->messageID);
 		leaderBuffer[lastLeaderBuffer].originalNodeID = message->serverID;
 		leaderBuffer[lastLeaderBuffer].parentID = message->clientID;
 
-		message->clientID = TOS_NODE_ID;		
+		//message->clientID = TOS_NODE_ID;		
 		return TRUE;
 	}
 
