@@ -45,7 +45,7 @@ enum {
 	DISCOVER_MSG_ID = 132,
 	 
 	//Máximo de vizinhos
-	MAX_NEIGHBOURS = 20,
+	MAX_NEIGHBOURS = 6,
 	
 	//Timeout para finalização de um probe 
 	PROBE_TIMEOUT = 5000,
@@ -65,8 +65,8 @@ typedef nx_struct cass {
 	
 	nx_uint16_t motes; // número de nós vizinhos (messagem de disseminação)
 	nx_uint16_t sensorType; // sensor a ser lido (messagem de disseminação)
-	nx_uint32_t readValue; // valor lido no sensor (messagem de disseminação)
-	nx_uint16_t destArray[MAX_NEIGHBOURS];	// array de destino
+	nx_uint16_t readValue; // valor lido no sensor (messagem de disseminação)
+	//nx_uint16_t destArray[MAX_NEIGHBOURS];	// array de destino
 } cassMsg_t;
 
 typedef nx_struct p2pCache {
