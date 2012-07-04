@@ -19,10 +19,11 @@ implementation{
 	P2PRadioP.RadioSend -> RadioSend;
 	P2PRadioP.RadioReceive -> RadioReceive;
 	P2PRadioP.SendCTP -> CollectionSenderC;
-	P2PRadioP.RootControl -> Collector;
+	P2PRadioP.RootControl -> Collector.RootControl;
 	P2PRadioP.ReceiveCTP -> Collector.Receive[P2P_ID];
 	P2PRadioP.InterceptCTP -> Collector.Intercept[P2P_ID];
-	P2PRadioP.RoutingControl -> Collector;
-	P2PRadioP.PacketCTP -> Collector.Packet;
+	P2PRadioP.RoutingControl -> Collector.StdControl;
+	P2PRadioP.CtpPacket -> Collector.CtpPacket;
 	P2PRadioP.AMPacket -> RadioSend;
+
 }

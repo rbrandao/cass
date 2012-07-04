@@ -17,6 +17,7 @@ message_t sendBuff;
 uint8_t msgID;
 
 
+
 	event void Boot.booted(){
 		dbg("Test","Boot.booted()\n");
 		msgID = 1;		
@@ -42,6 +43,7 @@ uint8_t msgID;
     	
     	
     	if(TOS_NODE_ID == 1){
+    		dbg("Test","Sou o Root.\n");
     		call P2PRadio.setRoot();
     	}
     	
@@ -65,7 +67,7 @@ uint8_t msgID;
 		message.groupID = 0;
 		message.hops = 0;
 		message.messageID = msgID++;
-		message.value = TOS_NODE_ID + msgID;
+		message.value = TOS_NODE_ID + msgID;		
 		memcpy(call Packet.getPayload(&sendBuff,call Packet.maxPayloadLength()), &message, sizeof(cassMsg_t));
 		
 		returnValue = call P2PRadio.send(AM_BROADCAST_ADDR, &sendBuff, sizeof(cassMsg_t));
@@ -77,21 +79,21 @@ uint8_t msgID;
 	
 	event message_t * P2PRadio.receive(message_t *msg, void *payload, uint8_t len){
 		error_t returnValue;
-		cassMsg_t* message;
+		cassMsg_t message;
 		cassMsg_t reply;
 		dbg("Test","P2PRadio.receive()\n");
 
-		message = (cassMsg_t*) call Packet.getPayload(msg, len);
+		memcpy(&message,call Packet.getPayload(msg,call Packet.maxPayloadLength()),sizeof(cassMsg_t));
 		
 		if(call P2PRadio.isRoot()){
-			dbg("Test","Root: recebi a mensagem. Reenviando um mensagem para o nó %u.\n", message->srcID);
-			reply.destID = message->srcID;
+			dbg("Test","Root: recebi a mensagem. Reenviando um mensagem para o nó %u.\n", message.srcID);
+			reply.destID = message.srcID;
 			reply.groupID = 0;
 			reply.hops = 0;
 			reply.messageID = msgID++;
 			reply.messageType = PHOTO_MSG_ID;
 			reply.srcID = TOS_NODE_ID;
-			reply.value = 100 + message->srcID;
+			reply.value = 100 + message.srcID;
 			
 			memcpy(call Packet.getPayload(&sendBuff,call Packet.maxPayloadLength()), &message, sizeof(cassMsg_t));
 			returnValue = call P2PRadio.send(AM_BROADCAST_ADDR, &sendBuff, sizeof(cassMsg_t));
@@ -100,7 +102,7 @@ uint8_t msgID;
 			}			
 		}
 		else{
-			dbg("Test","O root me enviou o valor:%u.\n",message->value);
+			dbg("Test","O root me enviou o valor:%u.\n",message.value);
 		}
 		
 		return msg;
