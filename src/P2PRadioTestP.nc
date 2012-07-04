@@ -48,7 +48,7 @@ uint8_t msgID;
     	}
     	
     	if(TOS_NODE_ID == 4 || TOS_NODE_ID == 5){
-			call Timer.startOneShot(10 * TOS_NODE_ID);
+			call Timer.startOneShot(100 * TOS_NODE_ID);
 		}
     }
     
@@ -82,9 +82,8 @@ uint8_t msgID;
 		cassMsg_t message;
 		cassMsg_t reply;
 		dbg("Test","P2PRadio.receive()\n");
-
-		memcpy(&message,call Packet.getPayload(msg,call Packet.maxPayloadLength()),sizeof(cassMsg_t));
 		
+		memcpy(&message, payload, sizeof(cassMsg_t));
 		if(call P2PRadio.isRoot()){
 			dbg("Test","Root: recebi a mensagem. Reenviando um mensagem para o nó %u.\n", message.srcID);
 			reply.destID = message.srcID;

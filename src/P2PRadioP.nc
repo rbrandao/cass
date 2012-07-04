@@ -86,17 +86,22 @@ implementation{
 	//O nó que enviou a primeira mensagem irá definir srcID como sendo o próprio.
 	//Já o destID será sempre alterado para que os nós intermediários saibam que foi o parentID. 
 	event bool InterceptCTP.forward(message_t *msg, void *payload, uint8_t len){
-		/*cassMsg_t* message;
-		
-		message = (cassMsg_t*) call CtpPacket.getPayload(msg, len);
-		
-		//dbg("p2pRadio","Intercept: OriginalNode:%u | ParentID:%u | groupID:%u | messageID:%u.\n",message->srcID, message->destID, message->groupID, message->messageID);
-		
-		leaderBuffer[lastLeaderBuffer].originalNodeID = message->srcID;
-		leaderBuffer[lastLeaderBuffer].parentID = message->destID;
-
-		message->destID = TOS_NODE_ID;		*/
-		return TRUE;
+  		am_addr_t Next,Target;
+        am_id_t CTPID;
+        
+        
+        Next=call AMPacket.source(msg);
+        Target = call CtpPacket.getOrigin(msg);
+        CTPID = call AMPacket.type(msg);
+        
+        if (TOS_NODE_ID == Target) 
+        	return TRUE;
+                
+        dbg("p2pRadio", "InterceptCTP.forward: CTPID=%hhu, TargetMote=%hhu, NextMote=%hhu\n",CTPID,Target, Next);        
+        leaderBuffer[lastLeaderBuffer].originalNodeID = Target;
+		leaderBuffer[lastLeaderBuffer].parentID = Next;
+        
+        return TRUE;
 	}
 
 	command void P2PRadio.setRoot(){
@@ -109,20 +114,21 @@ implementation{
 
 	//Esse recebimento ocorre quando o Root está enviando para um 
 	event message_t * RadioReceive.receive(message_t *msg, void *payload, uint8_t len){
-		cassMsg_t* message;
-
-		message = (cassMsg_t*) call RadioSend.getPayload(msg, len);
+		cassMsg_t message;
 		
-		if(message->destID == TOS_NODE_ID){
+		//memcpy(&message, payload, sizeof(cassMsg_t));
+		memcpy(&message,call SendCTP.getPayload(msg,call SendCTP.maxPayloadLength()),sizeof(cassMsg_t));		
+		if(message.destID == TOS_NODE_ID){
 			dbg("p2pRadio","RadioReceive.receive: Mensagem para mim vinda do Root.\n");
+			signal P2PRadio.receive(msg, payload, len);
 			return msg;
 		}
 		else{
 			int i;
 			for(i = 0; i < MAX_LEADER_BUFFER_LEN; i++){
-				if(leaderBuffer[i].originalNodeID == message->destID){
+				if(leaderBuffer[i].originalNodeID == message.destID){
 					call RadioSend.send(leaderBuffer[i].parentID, msg, len);
-					dbg("p2pRadio","RadioReceive.receive: Msg destino:%u | Enviando para:%u.\n", message->destID, leaderBuffer[i].parentID);
+					dbg("p2pRadio","RadioReceive.receive: Msg destino:%u | Enviando para:%u.\n", message.destID, leaderBuffer[i].parentID);
 					return msg;
 				}
 			}
@@ -133,13 +139,16 @@ implementation{
 	}
 	
 	event message_t * ReceiveCTP.receive(message_t *msg, void *payload, uint8_t len){
-		cassMsg_t* message;
+		cassMsg_t message;
 
-		message = (cassMsg_t*) call RadioSend.getPayload(msg, len);
-		leaderBuffer[lastLeaderBuffer].originalNodeID = message->srcID;
-		leaderBuffer[lastLeaderBuffer].parentID = message->destID;
+		memcpy(&message, payload, sizeof(cassMsg_t));
+		
+		leaderBuffer[lastLeaderBuffer].originalNodeID = message.srcID;
+		leaderBuffer[lastLeaderBuffer].parentID = 0;
 		
 		lastLeaderBuffer = lastLeaderBuffer % MAX_LEADER_BUFFER_LEN;
+		
+		dbg("p2pRadio","ReceiveCTP.receive: Root recebi a mensagem de %u|%u.\n",message.srcID, message.messageID);
 		signal P2PRadio.receive(msg, payload, len);		
 		return msg;
 	}
