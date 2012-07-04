@@ -66,14 +66,14 @@ implementation{
 		
 		if(payload.hops != 0)
 			dbg("hopRadio", "Lixo no valor de HOPS [%d]. Estou sobreescrevendo.\n", payload.hops);
-			
+		
 		payload.messageID = (TOS_NODE_ID << 8) + msgID++;
 		payload.hops = hopsNum;
+		dbg("hopRadio","DEBUG: MsgID=%u|Hops=%u.\n",payload.messageID,payload.hops);
 
 		// Copia payload para o buffer da mensagem
 		memcpy(call AMSend.getPayload(&sendBuff,call AMSend.maxPayloadLength()), &payload, sizeof(cassMsg_t));
-
-		return call  RadioSend.send(addr, &sendBuff, len);
+		return call  RadioSend.send(AM_BROADCAST_ADDR, &sendBuff, len);
 	}
 
 	command error_t AMSend.cancel(message_t *msg){
@@ -89,13 +89,13 @@ implementation{
 
 		memcpy(&message, payload, sizeof(cassMsg_t));
 		
-		//Não reenvia a própria mensagem.
+		
         if(message.srcID == TOS_NODE_ID){
             return msg;
         }
 		
-		
 		if(isDuplicateMsg(message.messageID)){
+			dbg("hopRadio", "RadioReceive.receive(): Mensagem duplicada. srcID=%u | msgID=%u.\n", message.srcID, message.messageID);
 			return msg;
 		}
 		messageBufferID[bufferID++ % MAX_MESSAGE_ID_BUFFER_LEN] = message.messageID;

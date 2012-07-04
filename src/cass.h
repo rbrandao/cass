@@ -60,13 +60,6 @@ typedef nx_struct cass {
 	nx_uint16_t hops; // número de saltos da mensagem.
 	nx_uint16_t value; // valor da mensagem.
 	nx_uint16_t messageType; //tipo da mensagem.
-	
-	//disseminacao de mensagens
-	
-	nx_uint16_t motes; // número de nós vizinhos (messagem de disseminação)
-	nx_uint16_t sensorType; // sensor a ser lido (messagem de disseminação)
-	nx_uint16_t readValue; // valor lido no sensor (messagem de disseminação)
-	//nx_uint16_t destArray[MAX_NEIGHBOURS];	// array de destino
 } cassMsg_t;
 
 typedef nx_struct p2pCache {

@@ -21,6 +21,7 @@ t.addChannel("groupRadio", sys.stdout)
 t.addChannel("lifeCycle", sys.stdout)
 t.addChannel("hopRadio", sys.stdout)
 t.addChannel("p2pRadio", sys.stdout)
+t.addChannel("probeEcho", sys.stdout)
 
 noise = open("meyer-heavy.txt", "r") #introduz ruido na comunicacao
 lines = noise.readlines()

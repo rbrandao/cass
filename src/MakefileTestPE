@@ -1,5 +1,6 @@
-COMPONENT=ProbeEchoTestC
+COMPONENT=PEPTestC
 SENSORBOARD=mts300
 PFLAGS=-DCC1K_DEF_FREQ=916400000
 CFLAGS+=-I$(TOSDIR)/lib/printf
 include $(MAKERULES)
+CFLAGS += -I$(TOSDIR)/lib/net/ -I$(TOSDIR)/lib/net/ctp  -I$(TOSDIR)/lib/net/4bitle

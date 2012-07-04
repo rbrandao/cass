@@ -52,7 +52,7 @@ implementation{
 		
 		memcpy(&message, payload, sizeof(cassMsg_t));
 		if(groupID == message.groupID){
-			dbg("groupRadio","Repassando mensagem do grupo %u.\n",groupID);	
+			dbg("groupRadio","Repassando MsgID:%u|GID:%u.\n",message.messageID,groupID);	
 			return signal Receive.receive(msg, payload, len);
 		}
 		
