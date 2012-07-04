@@ -17,7 +17,10 @@ enum {
 	
 	//Identificador da mensagem P2P
 	P2P_MSG_ID = 301,
-	
+	ROUTING_MSG_ID = 302,
+
+	//mig java
+	AM_CASSMSG = CASS_ID,	
 
 	/*
 	 * Eleição de líder
@@ -48,11 +51,11 @@ enum {
 	MAX_NEIGHBOURS = 6,
 	
 	//Timeout para finalização de um probe 
-	PROBE_TIMEOUT = 5000,
+	PROBE_TIMEOUT = 5000
 };
 
 // broadcast
-typedef nx_struct cass {
+typedef nx_struct cassMsg {
 	nx_uint16_t srcID; // ID do nó de origem.
 	nx_uint16_t destID; // ID do nó de destino.
 	nx_uint16_t messageID; // Contador da mensagem.

@@ -1,0 +1,13 @@
+COMPONENT=CASSNodeC
+SENSORBOARD=mts300
+PFLAGS=-DCC1K_DEF_FREQ=916400000
+
+BUILD_EXTRA_DEPS = cassMsg.java
+
+cassMsg.java: cass.h 
+	mig java -target=$(PLATFORM) $(CFLAGS) -java-classname=cassMsg cass.h cassMsg -o $@
+
+include $(MAKERULES)
+
+CFLAGS += -I$(TOSDIR)/lib/printf
+CFLAGS += -I$(TOSDIR)/lib/net/ -I$(TOSDIR)/lib/net/ctp  -I$(TOSDIR)/lib/net/4bitle

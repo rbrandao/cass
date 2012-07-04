@@ -133,6 +133,9 @@ implementation{
 		}
 		radioBusy = TRUE;
 		
+		//Sinaliza evento de finalização de eleição pelo interface 
+		signal LeaderElection.announceVictoryDone(SUCCESS); 
+		
 		memcpy(call GroupSend.getPayload(&sendBuff, call GroupSend.maxPayloadLength()), data, sizeof(cassMsg_t));
 
 		return call GroupSend.send(data->destID, &sendBuff, sizeof(cassMsg_t));
@@ -242,6 +245,9 @@ implementation{
 						call waitVictoryTimer.stop();
 					}
 				}
+				
+				//Sinaliza evento de finalização de eleição pelo interface 
+				signal LeaderElection.announceVictoryDone(SUCCESS); 
 				
 				break;
 		}
