@@ -68,7 +68,7 @@ implementation{
 					payload.messageType = P2P_MSG_ID;
 
 					memcpy(call RadioSend.getPayload(&sendBuff,call RadioSend.maxPayloadLength()), &payload, sizeof(cassMsg_t));
-					return call RadioSend.send(leaderBuffer[i].parentID, &sendBuff, len);
+					return call RadioSend.send(AM_BROADCAST_ADDR, &sendBuff, len);
 				}
 			}
 			return -1;
@@ -79,7 +79,8 @@ implementation{
 				dbg("p2pRadio","[ERROR] P2PRadio.send: srcID deve ser o id do nó.\n");
 			}
 			
-			return call SendCTP.send(msg, len);	
+			memcpy(call SendCTP.getPayload(&sendBuff,call SendCTP.maxPayloadLength()), &payload, sizeof(cassMsg_t));
+			return call SendCTP.send(&sendBuff, len);	
 		}
 	}
 	
@@ -116,8 +117,8 @@ implementation{
 	event message_t * RadioReceive.receive(message_t *msg, void *payload, uint8_t len){
 		cassMsg_t message;
 		
-		//memcpy(&message, payload, sizeof(cassMsg_t));
-		memcpy(&message,call SendCTP.getPayload(msg,call SendCTP.maxPayloadLength()),sizeof(cassMsg_t));		
+		memcpy(&message, payload, sizeof(cassMsg_t));
+		
 		if(message.destID == TOS_NODE_ID){
 			dbg("p2pRadio","RadioReceive.receive: Mensagem para mim vinda do Root.\n");
 			signal P2PRadio.receive(msg, payload, len);
@@ -148,7 +149,7 @@ implementation{
 		
 		lastLeaderBuffer = lastLeaderBuffer % MAX_LEADER_BUFFER_LEN;
 		
-		dbg("p2pRadio","ReceiveCTP.receive: Root recebi a mensagem de %u|%u.\n",message.srcID, message.messageID);
+		dbg("p2pRadio","ReceiveCTP.receive: [Root] recebi a mensagem de %u.\n", message.srcID);
 		signal P2PRadio.receive(msg, payload, len);		
 		return msg;
 	}
