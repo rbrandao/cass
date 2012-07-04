@@ -77,13 +77,13 @@ implementation{
 			call RadioLifeCycle.init();		
 	
 			radioBusy = FALSE;
-		
-			if(TOS_NODE_ID == ELECTION_STARTER){
-				dbg("leaderElection","LeaderElectionP Iniciando nova eleição em %dms\n",nodeDelay);
-	
-				//Dispara timer para início da eleição
-				call startElectionTimer.startOneShot(nodeDelay);
-			}
+//		
+//			if(TOS_NODE_ID == ELECTION_STARTER){
+//				dbg("leaderElection","LeaderElectionP Iniciando nova eleição em %dms\n",nodeDelay);
+//	
+//				//Dispara timer para início da eleição
+//				call startElectionTimer.startOneShot(nodeDelay);
+//			}
 		}
 		else{
 			call Radio.start();
@@ -322,6 +322,10 @@ implementation{
 		groupID = 1;
 		hopsNum = HOPS_MAX_NUMBER;
 		
+		dbg("leaderElection","LeaderElectionP Iniciando nova eleição em %dms\n",nodeDelay);
+	
+		//Dispara timer para início da eleição
+		call startElectionTimer.startOneShot(nodeDelay);
 	}
 
 	command void LifeCycle.setProperty(uint8_t *option, uint16_t value){
