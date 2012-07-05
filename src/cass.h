@@ -10,6 +10,7 @@ enum {
 	DELAY_TIME = 1050,
 	MAX_MESSAGE_ID_BUFFER_LEN = 5,
 	MAX_LEADER_BUFFER_LEN = 10,
+	MAX_RELIABLE_BUFFER_LEN = 5,
 
 	PHOTO_MSG_ID = 501,
 	TEMP_MSG_ID = 502,
@@ -71,5 +72,9 @@ typedef nx_struct p2pCache {
 	nx_uint16_t groupID; //Grupo no qual o nó pertence.
 } p2pCache_t;
 
+typedef nx_struct reliableCache {
+	nx_uint16_t messageID; // ID da mensagem.
+	nx_uint8_t tries; //Tentativa atual da mensage.	
+} reliableCache_t;
 
 #endif /* CASS_H */
