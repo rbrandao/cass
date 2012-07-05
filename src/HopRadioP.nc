@@ -109,7 +109,7 @@ implementation{
 			memcpy(call RadioSend.getPayload(&sendBuff,call RadioSend.maxPayloadLength()), &message, sizeof(cassMsg_t));
 			
 			dbg("hopRadio", "Hops: Enviando a mensagem. Hops=%u.\n", message.hops);
-			call RadioSend.send(message.destID, &sendBuff, len);
+			call RadioSend.send(AM_BROADCAST_ADDR, &sendBuff, len);
 		}
 		
 		return msg;

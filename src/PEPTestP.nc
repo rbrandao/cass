@@ -4,18 +4,21 @@ module PEPTestP{
 	uses {
 		interface MessageDissemination;
 		interface LifeCycle as PELifeCycle;
-		
+	
 		interface Boot;
 		interface SplitControl as Radio;
 		interface Timer<TMilli> as Timer;
 		interface Timer<TMilli> as TimerTX;
-		}
+		interface Read<uint16_t>  as PhotoSensor;
+		interface Read<uint16_t>  as TempSensor;
+	}
 }
 implementation{
 	bool sendBusy = TRUE;
 	message_t sendBuff;
 	
 	cassMsg_t dataG;
+	void replyRequest(uint16_t sensorValue);
 
 	event void Boot.booted(){
 		dbg("Test","Boot.booted().\n");
@@ -24,25 +27,25 @@ implementation{
 	}	
 
 	event void Radio.startDone(error_t error){
-        dbg("Test","Radio.startDone().\n");
+		dbg("Test","Radio.startDone().\n");
 	
-        if(error != SUCCESS){
-        	call Radio.start();	    	
-	    	return;
-        }
+		if(error != SUCCESS){
+			call Radio.start();	    	
+			return;
+		}
 		call PELifeCycle.setProperty((uint8_t*)"groupID", 0); //Todo mundo no mesmo grupo.
 		call PELifeCycle.setProperty((uint8_t*)"hops", 5);
-        
-        call PELifeCycle.init();
-    	sendBusy = FALSE;
-    	
-    	
-    	if(TOS_NODE_ID == 1){    		
+ 
+		call PELifeCycle.init();
+		sendBusy = FALSE;
+	
+	
+		if(TOS_NODE_ID == 1){    		
 			call Timer.startOneShot(500);
 		}
-    }
-    
-    
+	}
+ 
+ 
 	event void Timer.fired(){
 		call MessageDissemination.sendMessage(TEMP_MSG_ID);		
 	}
@@ -53,34 +56,20 @@ implementation{
 	}
 	
 	event void TimerTX.fired(){
-		cassMsg_t message;
-		nx_int16_t sensorValue;
-		error_t returnValue;
 		dbg("Test","Recebi um Probe do Nó:%u.\n",dataG.srcID);
-		
+	
 		switch(dataG.value){ //value = SENSOR_TYPE
 			case(PHOTO_MSG_ID):
-				sensorValue = 367; //call PhotoStub
+			call PhotoSensor.read();
 			break;
+	
 			case(TEMP_MSG_ID):
-				sensorValue = 911; //call TempStub
+			call TempSensor.read();
 			break;
+	
 			default:
-				sensorValue = 0;
+			dbg("Test","Sensor cujo id=%u é desconhecido.\n",dataG.value);
 			break;	
-		}
-		
-		message.srcID = TOS_NODE_ID;
-		message.destID = AM_BROADCAST_ADDR; //message.destID = data.srcID;
-		message.groupID = 0;
-		message.hops = 0;
-		message.messageID = 0;
-		message.value = sensorValue;
-		message.messageType = ECHO_MSG_ID;
-		
-		returnValue = call MessageDissemination.replyRequest(message);
-		if (returnValue != SUCCESS){
-    		dbg("Test","ProbeEcho.receiveProbe(): Erro '%u'  ao enviar mensagem para o nó %u!\n",returnValue, TOS_NODE_ID);    	
 		}
 	}
 
@@ -93,4 +82,31 @@ implementation{
 	event void PELifeCycle.stopDone(error_t error){	}
 	event void PELifeCycle.initDone(error_t error){	}
 	event void Radio.stopDone(error_t error){	}
+
+	event void PhotoSensor.readDone(error_t result, uint16_t val){
+		replyRequest(val);
+	}
+
+	event void TempSensor.readDone(error_t result, uint16_t val){
+		replyRequest(val);
+	}
+	
+	// Envia uma mensagem de Echo para o nó.
+	void replyRequest(uint16_t sensorValue){
+		cassMsg_t message;
+		error_t returnValue;
+	
+		message.srcID = TOS_NODE_ID;
+		message.destID = 0;
+		message.groupID = 0;
+		message.hops = 0;
+		message.messageID = 0;
+		message.value = sensorValue;
+		message.messageType = ECHO_MSG_ID;
+	
+		returnValue = call MessageDissemination.replyRequest(message);
+		if (returnValue != SUCCESS){
+			dbg("Test","ProbeEcho.receiveProbe(): Erro '%u'  ao enviar mensagem para o nó %u!\n",returnValue, TOS_NODE_ID);    	
+		}
+	}
 }

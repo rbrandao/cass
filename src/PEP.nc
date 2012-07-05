@@ -43,7 +43,7 @@ implementation{
 		
 		sendBusy = TRUE;
 		message.srcID = TOS_NODE_ID;
-		message.destID = AM_BROADCAST_ADDR;
+		message.destID = 0;
 		message.groupID = 0;
 		message.hops = 0;
 		message.messageID = 0;
@@ -64,7 +64,7 @@ implementation{
 			signal MessageDissemination.receiveRequest(message);	
 		}
 		if(prober && message.messageType == ECHO_MSG_ID){
-			
+			dbg("probeEcho", "PEP::RadioReceive.receive(): Recebi uma mensagem de Echo do nó:%u.\n", message.srcID);
 			//Quando chegar a primeira mensagem de Echo o Prober inicia um timer.
 			//Esse timer espera um tempo determinado a chegada das outras mensagens e
 			//depois sinaliza que o probe foi finalizado.
