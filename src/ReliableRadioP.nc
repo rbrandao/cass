@@ -12,7 +12,7 @@ module ReliableRadioP{
 	uses interface Timer<TMilli> as DelayTimer;
 }
 implementation{
-	uint8_t triesNum;
+	int16_t triesNum;
 	reliableCache_t cache[MAX_RELIABLE_BUFFER_LEN];
 	int lastCashIndex;
 	
@@ -33,7 +33,7 @@ implementation{
 	command void LifeCycle.setProperty(uint8_t * option, uint16_t value){
 		if(strcmp((char*)option, "tries") == 0){
 			dbg("lifeCycle", "ReliableR:LifeCycle.init(): Set Tries:%u.\n",value);
-			triesNum = (uint8_t)value;
+			triesNum = (int16_t)value;
 		}
 	}
 	
@@ -49,6 +49,11 @@ implementation{
 		cassMsg_t payload;
 	
 		memcpy(&payload,call RadioSend.getPayload(msg,call RadioSend.maxPayloadLength()),sizeof(cassMsg_t));
+	
+		if(addr == AM_BROADCAST_ADDR){
+			dbg("reliableRadio", "RelRadio:AMSend.send(): Mensagem:%u via BROADCAST.\n", payload.messageID);
+			return call RadioSend.send(addr, msg, len);
+		}
 	
 		cache[lastCashIndex].messageID = payload.messageID;
 		cache[lastCashIndex].tries = triesNum;	
@@ -86,20 +91,20 @@ implementation{
 	
 		if(i < MAX_LEADER_BUFFER_LEN){
 			cache[i].tries = cache[i].tries - 1;
-			if(cache[i].tries <= 0){
-				dbg("reliableRadio", "RelRadio:RadioSend.sendDone(): Erro ao enviar MsgID=%u|destID=%u|srcID=%u|Tries=%u.\n",
-						payload.messageID, payload.destID, payload.srcID, cache[i].tries);
+			if(cache[i].tries < 0){
+				dbg("reliableRadio", "RelRadio:RadioSend.sendDone(): Erro ao enviar MsgID=%u|destID=%u|srcID=%u.\n",
+						payload.messageID, payload.destID, payload.srcID);
 				signal AMSend.sendDone(msg, 10);
 				return;
 			}
 	
 			dbg("reliableRadio", "RelRadio:RadioSend.sendDone(): Reenviando MsgID=%u|destID=%u|srcID=%u|Tries=%u.\n", 
-						payload.messageID, payload.destID, payload.srcID, cache[i].tries);
-			call RadioSend.send(AM_BROADCAST_ADDR, msg, sizeof(cassMsg_t));
+					payload.messageID, payload.destID, payload.srcID, cache[i].tries);
+			call RadioSend.send(payload.destID, msg, sizeof(cassMsg_t));
 		}
 		else{
-			dbg("reliableRadio", "RelRadio:RadioSend.sendDone(): Mesnagem '%u' não encontrada no cache.\n", payload.messageID);
-			signal AMSend.sendDone(msg, 20);			
+			//dbg("reliableRadio", "RelRadio:RadioSend.sendDone(): Mesnagem '%u' não encontrada no cache.\n", payload.messageID);
+			signal AMSend.sendDone(msg, error);			
 		}
 	}
 

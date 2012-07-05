@@ -13,12 +13,12 @@ implementation{
 bool sendBusy = TRUE;
 message_t sendBuff;
 uint8_t msgID;
-
+int MAX_TEST_NODE = 5;
 
 	event void Boot.booted(){
 		dbg("Test","Boot.booted()\n");
 		
-		call RadioLifeCycle.setProperty((uint8_t*)"tries", 3);
+		call RadioLifeCycle.setProperty((uint8_t*)"tries", 2);
 		call Radio.start();
 	}	
 	
@@ -52,17 +52,16 @@ uint8_t msgID;
 		
 		sendBusy = TRUE;
 		message.srcID = TOS_NODE_ID;
-		message.destID = AM_BROADCAST_ADDR;
+		message.destID = (message.srcID + 1) % MAX_TEST_NODE;
 		message.groupID = 0;
 		message.messageID = msgID++;
 		message.value = TOS_NODE_ID + msgID;
 		memcpy(call RadioSend.getPayload(&sendBuff,call RadioSend.maxPayloadLength()), &message, sizeof(cassMsg_t));
 		
-		returnValue = call RadioSend.send(AM_BROADCAST_ADDR, &sendBuff, sizeof(cassMsg_t));
+		returnValue = call RadioSend.send(message.destID, &sendBuff, sizeof(cassMsg_t));
 		if (returnValue != SUCCESS){
     		dbg("Test","Timer.fired(): erro ao enviar mensagem para o id %u!\n",msgID);    	
-		}
-		
+		}		
 	}		
 
 	event void RadioLifeCycle.stopDone(error_t error){

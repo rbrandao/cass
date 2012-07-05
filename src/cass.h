@@ -74,7 +74,7 @@ typedef nx_struct p2pCache {
 
 typedef nx_struct reliableCache {
 	nx_uint16_t messageID; // ID da mensagem.
-	nx_uint8_t tries; //Tentativa atual da mensage.	
+	nx_int16_t tries; //Tentativa atual da mensage.	
 } reliableCache_t;
 
 #endif /* CASS_H */
