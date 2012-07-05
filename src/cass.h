@@ -68,6 +68,7 @@ typedef nx_struct cassMsg {
 typedef nx_struct p2pCache {
 	nx_uint16_t originalNodeID; // ID do nó que enviou a mensagem.
 	nx_uint16_t parentID; //ID de onde a mensagem chegou.
+	nx_uint16_t groupID; //Grupo no qual o nó pertence.
 } p2pCache_t;
 
 
