@@ -2,7 +2,7 @@
 
 module PEPTestP{
 	uses {
-		interface ProbeEcho;
+		interface MessageDissemination;
 		interface LifeCycle as PELifeCycle;
 		
 		interface Boot;
@@ -44,10 +44,10 @@ implementation{
     
     
 	event void Timer.fired(){
-		call ProbeEcho.probe(TEMP_MSG_ID);		
+		call MessageDissemination.sendMessage(TEMP_MSG_ID);		
 	}
 	
-	event void ProbeEcho.receiveProbe(cassMsg_t data){
+	event void MessageDissemination.receiveRequest(cassMsg_t data){
 		call TimerTX.startOneShot(55 * TOS_NODE_ID);
 		memcpy(&dataG, &data, sizeof(cassMsg_t));
 	}
@@ -78,18 +78,18 @@ implementation{
 		message.value = sensorValue;
 		message.messageType = ECHO_MSG_ID;
 		
-		returnValue = call ProbeEcho.echo(message);
+		returnValue = call MessageDissemination.replyRequest(message);
 		if (returnValue != SUCCESS){
     		dbg("Test","ProbeEcho.receiveProbe(): Erro '%u'  ao enviar mensagem para o nó %u!\n",returnValue, TOS_NODE_ID);    	
 		}
 	}
 
-	event void ProbeEcho.probeDone(nx_uint16_t data){
+	event void MessageDissemination.receiveResponse(nx_uint16_t data){
 		dbg("Test","--- Recebi a média: %u.\n",data);
 		//Envia para o Cliente via P2P.
 	}
 
-	event void ProbeEcho.echoDone(error_t error){	}
+	event void MessageDissemination.replyRequestDone(error_t error){	}
 	event void PELifeCycle.stopDone(error_t error){	}
 	event void PELifeCycle.initDone(error_t error){	}
 	event void Radio.stopDone(error_t error){	}

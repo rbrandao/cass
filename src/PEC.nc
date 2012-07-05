@@ -1,6 +1,6 @@
 configuration PEC{
 	provides{
-		interface ProbeEcho;
+		interface MessageDissemination;
 		interface LifeCycle;
 		}	
 }
@@ -14,6 +14,6 @@ implementation{
 	PEP.RadioLifeCycle -> HopRadioC.LifeCycle;
 	PEP.ProbeTimeoutTimer -> ProbeTimeoutTimer;
 	
-	PEP.ProbeEcho = ProbeEcho;
+	PEP.MessageDissemination = MessageDissemination;
 	PEP.LifeCycle = LifeCycle;
 }

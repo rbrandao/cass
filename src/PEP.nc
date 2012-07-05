@@ -2,7 +2,7 @@
 
 module PEP{
 		provides{
-		interface ProbeEcho;
+		interface MessageDissemination;
 		interface LifeCycle;
 		}
 	uses{
@@ -37,7 +37,7 @@ implementation{
 	}
 
 
-	command error_t ProbeEcho.probe(nx_uint16_t sensorType){
+	command error_t MessageDissemination.sendMessage(nx_uint16_t sensorType){
 		cassMsg_t message;
 		prober = TRUE;
 		
@@ -61,7 +61,7 @@ implementation{
 		memcpy(&message, payload, sizeof(cassMsg_t));
 		dbg("probeEcho", "PEP::RadioReceive.receive(): MsgID=%u.\n", message.messageID);
 		if(message.messageType == PROBE_MSG_ID){
-			signal ProbeEcho.receiveProbe(message);	
+			signal MessageDissemination.receiveRequest(message);	
 		}
 		if(prober && message.messageType == ECHO_MSG_ID){
 			
@@ -85,7 +85,7 @@ implementation{
 	event void ProbeTimeoutTimer.fired(){
 		prober = FALSE;
 		sendBusy = FALSE;
-		signal ProbeEcho.probeDone((agregatorValue/echosNum));		
+		signal MessageDissemination.receiveResponse((agregatorValue/echosNum));		
 	}
 	
 	
@@ -93,7 +93,7 @@ implementation{
 		sendBusy = FALSE;
 	}
 
-	command error_t ProbeEcho.echo(cassMsg_t data){
+	command error_t MessageDissemination.replyRequest(cassMsg_t data){
 		sendBusy = TRUE;
 				
 		if(data.messageType != ECHO_MSG_ID){

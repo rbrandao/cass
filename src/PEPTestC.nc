@@ -13,7 +13,7 @@ implementation{
     PEPTestP.Timer -> Timer;
     PEPTestP.TimerTX -> TimerTX;
 	
-	PEPTestP.ProbeEcho -> PEC.ProbeEcho;
+	PEPTestP.MessageDissemination -> PEC.MessageDissemination;
 	PEPTestP.PELifeCycle -> PEC.LifeCycle;
 	//PEPTestP.PhotoSensor -> Stub
 	//PEPTestP.TempSensor -> Stub 
