@@ -5,6 +5,7 @@ implementation{
 	components LeaderElectionC;
     components MainC;
     components ActiveMessageC;
+    components dummyBSC;
     
     LeaderElectionTestP.Boot -> MainC.Boot;
     LeaderElectionTestP.Radio -> ActiveMessageC;

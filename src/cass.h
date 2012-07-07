@@ -5,13 +5,13 @@ enum {
 	CASS_ID = 100,
 	P2P_ID = 101,
 	HOPS_MAX_NUMBER = 3,
-
 	TIMER_PERIOD = 2000,
 	DELAY_TIME = 1050,
 	MAX_MESSAGE_ID_BUFFER_LEN = 5,
 	MAX_LEADER_BUFFER_LEN = 10,
 	MAX_RELIABLE_BUFFER_LEN = 5,
 
+	//Identicadores dos sensores
 	PHOTO_MSG_ID = 501,
 	TEMP_MSG_ID = 502,
 	SENSOR = TEMP_MSG_ID,
@@ -34,10 +34,6 @@ enum {
 
 	//Tempo máximo de espera pela eleição
 	ELECTION_TIMEOUT = 5000,
-	
-	//Node que iniciará a primeira eleição
-	ELECTION_STARTER = 1,
-	
 	
 	/*
 	 * Disseminação de mensagens

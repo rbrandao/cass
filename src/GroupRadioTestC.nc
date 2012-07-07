@@ -2,6 +2,7 @@ configuration GroupRadioTestC{
 }
 implementation{
 	components GroupRadioTestP;
+	components dummyBSC;
     components MainC;
     components GroupRadioC;
     components ActiveMessageC;

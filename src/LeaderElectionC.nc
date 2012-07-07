@@ -21,8 +21,6 @@ implementation{
 	components LeaderElectionP;
 	components HopRadioC;
 	
-	components dummyBSC;
-	
 	components new TimerMilliC() as startElectionTimer;
 	components new TimerMilliC() as sendResponseTimer;
 	components new TimerMilliC() as announceVictoryTimer;

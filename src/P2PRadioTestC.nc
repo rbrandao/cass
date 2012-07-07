@@ -2,6 +2,7 @@ configuration P2PRadioTestC{
 }
 implementation{
 	components P2PRadioTestP;
+    components dummyBSC;
     components MainC;
     components P2PRadioC;
     components ActiveMessageC;
