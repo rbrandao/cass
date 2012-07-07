@@ -51,7 +51,7 @@ implementation{
 
 		call RoutingControl.start();
 		dbg("p2pRadio","P2P:LifeCycle.init(): Componente iniciado.\n");
-		//call RadioLifeCycle.init();
+		call RadioLifeCycle.init();
 	}
 
 	command error_t P2PRadio.send(am_addr_t addr, message_t *msg, uint8_t len){
@@ -65,7 +65,6 @@ implementation{
 		groupID = payload.groupID;		
 	
 		if(call RootControl.isRoot()){
-			dbg("p2pRadio","P2PRadio.send: Root enviando mensagem para o nó:%u|%u.\n",destID,groupID);
 			for(i = 0; i < MAX_LEADER_BUFFER_LEN; i++){
 				if(leaderBuffer[i].originalNodeID == destID || //Verifica se o nó especificado na mensagem está na tabela de rotiamento... 
 						leaderBuffer[i].groupID == groupID ){ //Ou se o grupo está. Lembrando que deve existir somente um lider por grupo.
@@ -75,6 +74,7 @@ implementation{
 					payload.hops = 0;
 					payload.messageType = P2P_MSG_ID;
 
+					dbg("p2pRadio","P2PRadio.send: Root enviando mensagem para o nó:%u|%u.\n",payload.destID, payload.groupID);
 					memcpy(call RadioSend.getPayload(&sendBuff,call RadioSend.maxPayloadLength()), &payload, sizeof(cassMsg_t));
 					return call RadioSend.send(AM_BROADCAST_ADDR, &sendBuff, len);
 				}
@@ -87,6 +87,7 @@ implementation{
 				dbg("p2pRadio","[ERROR] P2PRadio.send: srcID deve ser o id do nó.\n");
 			}
 	
+			payload.messageType = ROUTING_MSG_ID;
 			memcpy(call SendCTP.getPayload(&sendBuff,call SendCTP.maxPayloadLength()), &payload, sizeof(cassMsg_t));
 			return call SendCTP.send(&sendBuff, len);	
 		}
@@ -120,18 +121,22 @@ implementation{
 		return call RootControl.isRoot();
 	}
 
-	//Esse recebimento ocorre quando o Root está enviando para um 
+	//Esse recebimento ocorre quando o Root está enviando para um nó
 	event message_t * RadioReceive.receive(message_t *msg, void *payload, uint8_t len){
 		cassMsg_t message;
 		int i;
 		memcpy(&message, payload, sizeof(cassMsg_t));
+		
+		if(message.messageType != P2P_MSG_ID && message.messageType != ROUTING_MSG_ID){
+			return msg;
+		}
 	
 		if(message.destID == TOS_NODE_ID){
 			dbg("p2pRadio","RadioReceive.receive: Mensagem para mim vinda do Root.\n");
 			signal P2PRadio.receive(msg, payload, len);
 			return msg;
 		}
-	
+			
 		for(i = 0; i < MAX_LEADER_BUFFER_LEN; i++){
 			if(leaderBuffer[i].originalNodeID == message.destID){
 				call RadioSend.send(leaderBuffer[i].parentID, msg, len);
@@ -149,11 +154,11 @@ implementation{
 		int i;
 
 		memcpy(&message, payload, sizeof(cassMsg_t));
-	
+
 		//Atualiza o Líder do grupo. Só deve existir um lider por grupo cadastrado na tabela de rotiamento.
 		for(i = 0; i < MAX_LEADER_BUFFER_LEN; i++){
 			if(leaderBuffer[i].groupID == message.groupID){
-				dbg("p2pRadio","P2P:ReceiveCTP.receive(): Atualizando tabela de rotiamento. Lider:%u",message.srcID);
+				dbg("p2pRadio","P2P:ReceiveCTP.receive(): Atualizando tabela de rotiamento. Lider:%u.\n",message.srcID);
 				break;
 			}
 		}		

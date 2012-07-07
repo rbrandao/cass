@@ -38,6 +38,7 @@ implementation{
 	message_t sendBuff;
 	cassMsg_t echoData;
 	int ROOT_NODE = 17;
+	int groupID;
 	/*
 	 * Interface Boot
 	 */
@@ -53,29 +54,23 @@ implementation{
 		call MessageDisseminationLifeCycle.setProperty((uint8_t*)"hops", HOPS_MAX_NUMBER);
 		call MessageDisseminationLifeCycle.setProperty((uint8_t*)"tries", 3);
 		
-		
-		
 		//Definir as salas
 		if(TOS_NODE_ID >= 1 && TOS_NODE_ID <= 4){
-			call MessageDisseminationLifeCycle.setProperty((uint8_t*)"groupID", 1);
-			call RadioLifeCycle.setProperty((uint8_t*)"groupID", 1);
-			call LeaderElectionLifeCycle.setProperty((uint8_t*)"groupID", 1);
+			groupID = 1;
 		}
 		else if(TOS_NODE_ID >= 5 && TOS_NODE_ID <= 8){
-			call MessageDisseminationLifeCycle.setProperty((uint8_t*)"groupID", 2);
-			call RadioLifeCycle.setProperty((uint8_t*)"groupID", 2);
-			call LeaderElectionLifeCycle.setProperty((uint8_t*)"groupID", 2);
+			groupID = 2;
 		}
 		else if(TOS_NODE_ID >= 9 && TOS_NODE_ID <= 13){
-			call MessageDisseminationLifeCycle.setProperty((uint8_t*)"groupID", 3);
-			call RadioLifeCycle.setProperty((uint8_t*)"groupID", 3);
-			call LeaderElectionLifeCycle.setProperty((uint8_t*)"groupID", 3);
+			groupID = 3;
 		}
 		else {
-			call MessageDisseminationLifeCycle.setProperty((uint8_t*)"groupID", 55);
-			call RadioLifeCycle.setProperty((uint8_t*)"groupID", 55);
-			call LeaderElectionLifeCycle.setProperty((uint8_t*)"groupID", 55);
+			groupID = 55;
 		}
+		
+		call MessageDisseminationLifeCycle.setProperty((uint8_t*)"groupID", groupID);
+		call RadioLifeCycle.setProperty((uint8_t*)"groupID", groupID);
+		call LeaderElectionLifeCycle.setProperty((uint8_t*)"groupID", groupID);
 	
 		//Inicia componente Radio
 		//if(TOS_NODE_ID == ROOT_NODE){
@@ -100,7 +95,7 @@ implementation{
 			if(TOS_NODE_ID == ROOT_NODE){
 				//Define que o BaseStation é o root
 				call P2PRadio.setRoot();
-				call SendProbeTimer.startOneShot(5000);
+				call SendProbeTimer.startOneShot(10000);
 			}
 			dbg("cass","CASS:Inicializacao completa.\n");
 		}
@@ -119,11 +114,10 @@ implementation{
 		
 		if(call LeaderElection.retrieveLeader() == TOS_NODE_ID){
 			cassMsg_t msg;
-			msg.destID = AM_BROADCAST_ADDR;
+			msg.destID = 0;
 			msg.srcID = TOS_NODE_ID;
-			msg.value = TOS_NODE_ID;
-			msg.messageType = ROUTING_MSG_ID;
-			msg.groupID = 0;
+			msg.value = 0;
+			msg.groupID = groupID;
 			msg.hops = 0;
 	
 			dbg("cass","CASS:Lider enviando para o Root.\n");
@@ -137,11 +131,12 @@ implementation{
 	 */
 	event message_t * P2PRadio.receive(message_t *msg, void *payload, uint8_t len){
 		cassMsg_t data;
-	
-		memcpy(&data,payload,sizeof(cassMsg_t));		
-		if(TOS_NODE_ID == ROOT_NODE){
+			
+		memcpy(&data,payload,sizeof(cassMsg_t));
+		
+		if(call P2PRadio.isRoot()){
 			if(data.messageType == ROUTING_MSG_ID){
-				dbg("cass", "CASS:Rota para o líder da sala (%u) definida.\n",data.groupID);	
+				dbg("cass", "CASS:Rota para o líder da sala (%u) definida.\n", data.groupID);	
 				//BSSend.send(): Informando ao java que a rota para a sala está definida	
 			}
 			else {
@@ -164,10 +159,10 @@ implementation{
 	event void SendProbeTimer.fired(){
 		int GROUPID = 2;
 		cassMsg_t data;
-		dbg("cass","CASS:Enviando a mensagem para o nó %u.\n", GROUPID);
+		dbg("cass","===CASS:Enviando a mensagem para o nó %u.\n", GROUPID);
 		
 		data.srcID = TOS_NODE_ID;
-		data.destID =AM_BROADCAST_ADDR;
+		data.destID = AM_BROADCAST_ADDR;
 		data.groupID = GROUPID;
 		data.hops = 0;
 		data.messageID = 0;
