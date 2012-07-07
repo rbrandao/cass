@@ -7,23 +7,24 @@ configuration P2PRadioC{
 }
 implementation{
 	components P2PRadioP;
-	components new AMSenderC(P2P_ID) as RadioSend;
-    components new AMReceiverC(P2P_ID) as RadioReceive;
+	components ReliableRadioC as Radio;
     components CollectionC as Collector;
     components new CollectionSenderC(P2P_ID);
+    components new AMSenderC(P2P_ID) as RadioSend;
     
     
 	P2PRadioP.P2PRadio = P2PRadio;
 	P2PRadioP.LifeCycle = LifeCycle;
-
-	P2PRadioP.RadioSend -> RadioSend;
-	P2PRadioP.RadioReceive -> RadioReceive;
+	P2PRadioP.RadioSend -> Radio.AMSend;
+	P2PRadioP.RadioReceive -> Radio.Receive;
+	P2PRadioP.RadioLifeCycle -> Radio.LifeCycle;
 	P2PRadioP.SendCTP -> CollectionSenderC;
 	P2PRadioP.RootControl -> Collector.RootControl;
 	P2PRadioP.ReceiveCTP -> Collector.Receive[P2P_ID];
 	P2PRadioP.InterceptCTP -> Collector.Intercept[P2P_ID];
 	P2PRadioP.RoutingControl -> Collector.StdControl;
 	P2PRadioP.CtpPacket -> Collector.CtpPacket;
+	
 	P2PRadioP.AMPacket -> RadioSend;
-
+	P2PRadioP.DummyRadio -> RadioSend.AMSend;	
 }

@@ -6,13 +6,15 @@ module P2PRadioP{
 	
 	uses interface AMSend as RadioSend;
 	uses interface Receive as RadioReceive;
-	//uses interface LifeCycle as RadioLifeCycle;
+	uses interface LifeCycle as RadioLifeCycle;
 	
 	uses interface Send as SendCTP;
 	uses interface Receive as ReceiveCTP;
 	uses interface Intercept as InterceptCTP;
 	uses interface StdControl as RoutingControl;
 	uses interface CtpPacket as CtpPacket;
+	
+	uses interface AMSend as DummyRadio;
 	uses interface AMPacket;
 	
 	uses interface RootControl;	
@@ -26,11 +28,11 @@ implementation{
 	message_t sendBuff;
 
 	command void LifeCycle.stop(){
-		//call RadioLifeCycle.stop();
+		call RadioLifeCycle.stop();
 	}
 
 	command void LifeCycle.setProperty(uint8_t *option, uint16_t value){
-		//call RadioLifeCycle.setProperty(option, value);
+		call RadioLifeCycle.setProperty(option, value);
 	}
 
 	command void LifeCycle.init(){
@@ -182,4 +184,12 @@ implementation{
 		signal P2PRadio.sendDone(msg, error);
 	}
 	
+
+	event void RadioLifeCycle.stopDone(error_t error){	}
+
+	event void RadioLifeCycle.initDone(error_t error){	}
+
+	event void DummyRadio.sendDone(message_t *msg, error_t error){
+		// TODO Auto-generated method stub
+	}
 }

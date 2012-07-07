@@ -22,25 +22,31 @@ implementation{
 	components LeaderElectionC;
 	components MainC;
 	components ActiveMessageC;
-	components BaseStationC;
+	//components BaseStationC;
+	components new TimerMilliC() as EchoTimer;
+	components new TimerMilliC() as SendProbeTimer;
+
 
 	components new AMSenderC(1);
 	
-	CASSNodeP.Radio				-> P2PRadioC.P2PRadio;
+	CASSNodeP.P2PRadio				-> P2PRadioC.P2PRadio;
 	CASSNodeP.RadioLifeCycle	-> P2PRadioC.LifeCycle;
 	
 	CASSNodeP.Packet 			-> AMSenderC.Packet;
 	CASSNodeP.Dummy 			-> AMSenderC.AMSend; //Necessário para a interface Packet funcionar.
 
 	CASSNodeP.Boot				-> MainC;
-	CASSNodeP.BSBoot			<- BaseStationC.Boot;
+	//CASSNodeP.BSBoot			-> MainC.Boot;
 	CASSNodeP.RadioBoot			-> ActiveMessageC.SplitControl;
 	
-	CASSNodeP.MessageDissemination			-> PEC.ProbeEcho;
+	CASSNodeP.MessageDissemination			-> PEC.MessageDissemination;
 	CASSNodeP.MessageDisseminationLifeCycle	-> PEC.LifeCycle;
 
 	CASSNodeP.LeaderElection			-> LeaderElectionC.LeaderElection;
 	CASSNodeP.LeaderElectionLifeCycle	-> LeaderElectionC.LifeCycle;
+	
+	CASSNodeP.EchoTimer -> EchoTimer;
+	CASSNodeP.SendProbeTimer -> SendProbeTimer;
 	
 	//CASSNodeP.BSReceive	-> BaseStationC.Receive;
 	//CASSNodeP.BSSend	-> BaseStationC.AMSend;		

@@ -35,6 +35,7 @@ implementation{
 		}
 		call PELifeCycle.setProperty((uint8_t*)"groupID", 0); //Todo mundo no mesmo grupo.
 		call PELifeCycle.setProperty((uint8_t*)"hops", 5);
+		call PELifeCycle.setProperty((uint8_t*)"tries", 3);
  
 		call PELifeCycle.init();
 		sendBusy = FALSE;

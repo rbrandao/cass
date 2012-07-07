@@ -23,9 +23,6 @@ module LeaderElectionP{
 	uses interface Timer<TMilli> as waitVictoryTimer;
 	uses interface Timer<TMilli> as announceVictoryTimer;
 	
-	uses interface SplitControl as Radio;
-	uses interface Boot;
-	
 	uses interface AMSend as GroupSend;
 	uses interface Receive as GroupReceive;
 	uses interface LifeCycle as RadioLifeCycle;
@@ -35,69 +32,10 @@ implementation{
 	bool radioBusy;
 	bool isElectionRunning;
 	message_t sendBuff;
-	nx_uint16_t	hopsNum;
 	nx_uint16_t leaderID;
-	nx_uint16_t groupID;
 	nx_uint16_t lastReceivedID;
 	nx_uint32_t nodeDelay;
-	
-
-	/*
-	 * Interface Boot
-	 * 
-	 * TODO: Verificar onde vai ser o boot posteriormente
-	 */
-	
-	event void Boot.booted(){
-		dbg("leaderElection","LeaderElectionP Boot.booted()\n");
-		
-		//Inicia componente de eleição
-		call LifeCycle.init();
-		
-		//Cria um único grupo (para testes)
-		call LifeCycle.setProperty("groupID", groupID);
-		
-		//Define número de hops (para testes)
-		call LifeCycle.setProperty("hops", HOPS_MAX_NUMBER);
-		
-		//Inicia rádio
-		call Radio.start();
-	}
-
-	/*
-	 * Interface Radio
-	 */
-	 
-	event void Radio.startDone(error_t error){
-		dbg("leaderElection","LeaderElectionP Radio.startDone()\n");
-
-		if(error == SUCCESS){
-			
-			//Inicializa rádio através da interface LifeCycle
-			call RadioLifeCycle.init();		
-	
-			radioBusy = FALSE;
-//		
-//			if(TOS_NODE_ID == ELECTION_STARTER){
-//				dbg("leaderElection","LeaderElectionP Iniciando nova eleição em %dms\n",nodeDelay);
-//	
-//				//Dispara timer para início da eleição
-//				call startElectionTimer.startOneShot(nodeDelay);
-//			}
-		}
-		else{
-			call Radio.start();
-		}
-	}
-
-	event void Radio.stopDone(error_t error){
-		dbg("leaderElection","LeaderElectionP Radio.stopDone()\n");
-	}
-
-
-	/*
-	 * Interface LeaderElection
-	 */
+	nx_uint16_t groupID;
 	 
 	command bool LeaderElection.isElectionRunning(){
 		return isElectionRunning;
@@ -122,7 +60,6 @@ implementation{
 		data.groupID = groupID;
 		
 		memcpy(call GroupSend.getPayload(&sendBuff, call GroupSend.maxPayloadLength()), &data, sizeof(cassMsg_t));
-
 		return call GroupSend.send(data.destID, &sendBuff, sizeof(cassMsg_t));
 	}
 
@@ -135,9 +72,8 @@ implementation{
 		
 		//Sinaliza evento de finalização de eleição pelo interface 
 		signal LeaderElection.announceVictoryDone(SUCCESS); 
-		
-		memcpy(call GroupSend.getPayload(&sendBuff, call GroupSend.maxPayloadLength()), data, sizeof(cassMsg_t));
 
+		memcpy(call GroupSend.getPayload(&sendBuff, call GroupSend.maxPayloadLength()), data, sizeof(cassMsg_t));
 		return call GroupSend.send(data->destID, &sendBuff, sizeof(cassMsg_t));
 	}
 
@@ -168,13 +104,13 @@ implementation{
 			 switch(data.messageType){
 				 case ELECTION_MSG_ID:
 					 if(data.srcID == TOS_NODE_ID){
-						 dbg("leaderElection","LeaderElectionP GroupSend.sendDone(): Eleição iniciada (timeout=%d)\n",ELECTION_TIMEOUT);
+						 dbg("leaderElection","LeaderElectionP GroupSend.sendDone(): Eleição iniciada (timeout=%d)\n", (ELECTION_TIMEOUT + (10 * TOS_NODE_ID)));
 		
 						 isElectionRunning = TRUE;
 						 lastReceivedID = TOS_NODE_ID;
 		
 						 //Dispara timer para finalização da eleição
-						 call waitResponsesTimer.startOneShot(ELECTION_TIMEOUT);
+						 call waitResponsesTimer.startOneShot(ELECTION_TIMEOUT + (10 * TOS_NODE_ID));
 	 
 						 break;
 					 }
@@ -187,9 +123,9 @@ implementation{
 	
 	event message_t * GroupReceive.receive(message_t *msg, void *payload, uint8_t len){
 		cassMsg_t data;
-
-		dbg("leaderElection","LeaderElectionP GroupReceive.receive()\n");
+		
 		memcpy(&data,payload,sizeof(cassMsg_t));
+		dbg("leaderElection","LeaderElectionP GroupReceive.receive() %u\n", data.messageType);
 	
 		switch(data.messageType){
 			case ELECTION_MSG_ID:
@@ -271,6 +207,7 @@ implementation{
 		data.groupID = groupID;
 		data.messageType = VICTORY_MSG_ID;
 		
+		
 		call LeaderElection.announceVictory(&data);
 	}
 
@@ -278,7 +215,6 @@ implementation{
 		//Se ao fim do tempo de eleição TOS_NODE_ID for o maior, declara-se líder
 		if(lastReceivedID == TOS_NODE_ID){
 			leaderID = TOS_NODE_ID;
-			
 			//Anuncia vitória da eleição, com timer para evitar possíveis colisões
 			call announceVictoryTimer.startOneShot(nodeDelay);
 		}
@@ -305,13 +241,8 @@ implementation{
 	 * Eventos do Radio LifeCycle
 	 */
 	 
-	event void RadioLifeCycle.stopDone(error_t error){
-		// TODO Auto-generated method stub
-	}
-
-	event void RadioLifeCycle.initDone(error_t error){
-		// TODO Auto-generated method stub
-	}
+	event void RadioLifeCycle.stopDone(error_t error){}
+	event void RadioLifeCycle.initDone(error_t error){}
 
 
 	/*
@@ -320,32 +251,24 @@ implementation{
 	 
 	command void LifeCycle.init(){
 		//Inicializa variáveis
-		radioBusy = TRUE;
+		radioBusy = FALSE;
 		isElectionRunning = FALSE;
 		leaderID = 0;
 		lastReceivedID = 0;
 		nodeDelay = (TOS_NODE_ID * 15)+50;
-		groupID = 1;
-		hopsNum = HOPS_MAX_NUMBER;
 		
 		dbg("leaderElection","LeaderElectionP Iniciando nova eleição em %dms\n",nodeDelay);
 	
+		call RadioLifeCycle.init();
 		//Dispara timer para início da eleição
 		call startElectionTimer.startOneShot(nodeDelay);
 	}
 
 	command void LifeCycle.setProperty(uint8_t *option, uint16_t value){
-		if(strcmp(option,"hops") == 0){
-			dbg("lifeCycle", "LeaderElection: Set Hops:%u.\n", value);
-			hopsNum = value;
-		}
-		
-		if(strcmp((char*)option, "groupID") == 0){
-			dbg("lifeCycle", "LeaderElection: Set GroupID:%u.\n",value);
+		if(strcmp((char*)option, "groupID") == 0){		
 			groupID = value;
 		}
 		
-		//Deep configuration.
 		call RadioLifeCycle.setProperty(option, value);
 	}
 

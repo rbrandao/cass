@@ -21,9 +21,6 @@ implementation{
 	components LeaderElectionP;
 	components HopRadioC;
 	
-	components MainC;
-	components ActiveMessageC;
-	
 	components dummyBSC;
 	
 	components new TimerMilliC() as startElectionTimer;
@@ -38,9 +35,6 @@ implementation{
 	
 	LeaderElection					= LeaderElectionP.LeaderElection;
 	LifeCycle						= LeaderElectionP.LifeCycle;
-
-	LeaderElectionP.Boot			-> MainC;
-	LeaderElectionP.Radio			-> ActiveMessageC;
 	
 	LeaderElectionP.startElectionTimer		-> startElectionTimer;
 	LeaderElectionP.sendResponseTimer		-> sendResponseTimer;
