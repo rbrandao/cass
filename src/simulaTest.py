@@ -23,6 +23,7 @@ t.addChannel("hopRadio", sys.stdout)
 t.addChannel("p2pRadio", sys.stdout)
 t.addChannel("probeEcho", sys.stdout)
 t.addChannel("reliableRadio", sys.stdout)
+t.addChannel("leaderElection", sys.stdout)
 
 noise = open("meyer-heavy.txt", "r") #introduz ruido na comunicacao
 lines = noise.readlines()
