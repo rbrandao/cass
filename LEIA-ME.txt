@@ -1,0 +1,104 @@
+REDES DE SENSORES SEM FIO (INF-2592)
+Profa: Noemi Rodriguez
+
+Alunos: Mauricio Rosas
+	Rafael Brandão
+
+
+Esta é a implementação do projeto final da disciplina de Redes de Sensores Sem Fio. O código inclui diversos componentes para abstrair a camada de comunicação, disseminação de mensagens, eleição de líderes e configuração e gerência de ciclo-de-vida. A lista abaixo descreve todos os arquivs dos componentes implementados.
+
+
+Camada de comunicação
+=======================================
+
+CASSensors/src/GroupRadioC.nc		Wiring do componente de comunicação em grupo
+CASSensors/src/GroupRadioP.nc		Implementação do componente de comunicação em grupo
+CASSensors/src/GroupRadioTestC.nc	Wiring do teste unitário
+CASSensors/src/GroupRadioTestP.nc	Implementação do teste unitário
+
+CASSensors/src/HopRadioC.nc		Wiring do componente de comunicação com saltos
+CASSensors/src/HopRadioP.nc		Implementação do componente de comunicação com saltos
+CASSensors/src/HopRadioTestC.nc		Wiring do teste unitário
+CASSensors/src/HopRadioTestP.nc		Implementação do teste unitário
+
+
+CASSensors/src/P2PRadioC.nc		Wiring do componente de comunicação entre pares
+CASSensors/src/P2PRadioP.nc		Implementação do componente de comunicação entre pares
+CASSensors/src/P2PRadioTestC.nc		Wiring do teste unitário
+CASSensors/src/P2PRadioTestP.nc		Implementação do teste unitário
+
+CASSensors/src/ReliableRadioC.nc	Wiring do componente de comunicação confiável, com retransmissão
+CASSensors/src/ReliableRadioP.nc	Implementação do componente de comunicação confiável, com retransmissão
+CASSensors/src/ReliableRadioTestC.nc	Wiring do teste unitário
+CASSensors/src/ReliableRadioTestP.nc	Implementação do teste unitário
+
+
+BaseStation
+=======================================
+
+CASSensors/src/BaseStationC.nc		Wiring do componente BaseStation, disponibilizado no próprio TinyOS
+CASSensors/src/BaseStationP.nc		Implementação do componente BaseStation, disponibilizado no próprio TinyOS
+
+
+Implementação do nó (cliente de todos os componentes implementados)
+=======================================
+
+CASSensors/src/CASSNodeC.nc		Wiring do componente que utiliza todas as facilidades do CASSensors
+CASSensors/src/CASSNodeP.nc		Implementação do componente que utiliza todas as facilidades do CASSensors
+
+Eleição de líderes
+=======================================
+
+CASSensors/src/LeaderElectionC.nc	Wiring do componente para eleição de líder com o algoritmo Bully
+CASSensors/src/LeaderElectionP.nc	Implementação do componente para eleição de líder com o algoritmo Bully
+CASSensors/src/LeaderElectionTestC.nc	Wiring do teste unitário
+CASSensors/src/LeaderElectionTestP.nc	Implementação do teste unitário
+
+
+Interfaces do CASSensors
+=======================================
+CASSensors/src/LeaderElection.nc	Interface para componentes que implementem a funcionalidade de eleição de líderes
+CASSensors/src/LifeCycle.nc		Interface para configuração e controle de ciclo-de-vida dos componentes
+CASSensors/src/MessageDissemination.nc	Interface para componentes que implementem a funcionalidade de disseminação de mensagens
+CASSensors/src/P2PRadio.nc		Interface para componentes de comunicação entre pares, com roteamento transparente
+
+Makefiles
+=======================================
+CASSensors/src/MakefileCASSNode		Makefile para o build do CASSNode
+CASSensors/src/MakefileTestP2P		Makefile para o build do teste do componente de comunicação entre pares
+CASSensors/src/MakefileTestGroup	Makefile para o build do teste do componente de comunicação em grupo
+CASSensors/src/MakefileTestHop		Makefile para o build do teste do componente de comunicação com saltos
+CASSensors/src/MakefileTestLE		Makefile para o build do teste do componente de eleição de líderes (algoritmo Bully)
+CASSensors/src/MakefileTestPE		Makefile para o build do teste do componente de disseminação de mensagens (algoritmo Probe/Echo)
+CASSensors/src/MakefileTestReliable	Makefile para o build do teste do componente de comunicação confiável com retransmissão
+
+
+Disseminação de mensagens
+=======================================
+CASSensors/src/PEC.nc
+CASSensors/src/PEP.nc
+CASSensors/src/PEPTestC.nc
+CASSensors/src/PEPTestP.nc
+
+
+Outros arquivos
+=======================================
+CASSensors/src/cass.h			Cabeçalho com constantes e estruturas de mensagem do CASSensors
+CASSensors/src/dummyBSC.nc		Wiring do componente dummy para execução dos testes com SF (disponibilizado pelo Adriano)
+CASSensors/src/dummyBSP.nc		Implementação do componente dummy para execução dos testes com SF (disponibilizado pelo Adriano)
+CASSensors/src/meyer-heavy.txt		Arquivo com ruído a ser introduzido no simulador
+CASSensors/src/simula-n10.py		Script de teste utilizado nos testes unitários dos componentes
+CASSensors/src/simulaCass.py		Script de teste utilizado no CASSNode
+
+
+
+Compilação:
+
+make -f MakefileXXX micaz sim-sf
+
+Simulação: O script testará o componente compilado por último
+
+python script.py
+
+
+
